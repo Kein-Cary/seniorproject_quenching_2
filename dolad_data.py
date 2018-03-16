@@ -14,7 +14,9 @@ def dolad_data(m,hz):
     fname = os.path.join(_mh_path,'data_z.txt')
     hz = np.loadtxt(fname,delimiter=',',dtype=np.float,unpack=True)
     print('hz=',hz)
-    plt.plot(m[:,1],m[:,2])
+    plt.plot(m[:,1],m[:,2],label='Doload-successfully')
+    plt.legend()
+    plt.show()
     return(m,hz)
 dolad_data(m=True,hz=True)
 
@@ -59,7 +61,7 @@ def semula_tion(omegam,h):
         #E = np.sqrt(omegam*(1+hz[n]))
         H = h*100
         rouc = (3*H**2)/(8*np.pi*G*10**(-9))
-        roum = rouc*omegam
+        roum = 200*rouc*omegam
         
         r_200r = (3*10**mr[n]*ms/(4*np.pi*roum))**(1/3)
         r_200b = (3*10**mb[n]*ms/(4*np.pi*roum))**(1/3)
@@ -127,22 +129,22 @@ def semula_tion(omegam,h):
         plt.loglog(x1,y1,'-')
         x2 = Rsb[k,:]/rsb[k]
         y2 = deltasegmab[k,:]
-        '''
-        plt.loglog(x2,y2,'-')
+        #plt.loglog(x2,y2,'-')
         plt.grid()
-        plt.xlabel(r"$lg(R/rs)$")
-        plt.ylabel(r"$lgDeltasigma[Msun*Mpc^-2]$")
-        '''
+    plt.xlabel(r'$\frac{R}{rs}$')
+    plt.ylabel(r'$\Delta\Sigma(\frac{R}{rs})-M_sMpc^{-2}$')
     plt.hold()
     plt.show()
     plt.figure()
     plt.loglog(x1,y1,'r*')
     plt.loglog(x2,y2,'b*')
     plt.grid()
-    plt.xlabel(r"$lg(R/rs)$")
-    plt.ylabel(r"$lgDeltasigma[Msun*Mpc^-2]$")
+    plt.xlabel(r'$\frac{R}{rs}$')
+    plt.ylabel(r'$\Delta\Sigma(\frac{R}{rs})-M_sMpc^{-2}$')
   
 semula_tion(omegam=True,h=True)
+'''
 if __name__ == "__main__":
     dolad_data(m=True,hz=True)
     pass
+'''

@@ -19,7 +19,7 @@ def dolad_data(m,hz):
     fname = os.path.join(_mh_path,'data_z.txt')
     hz = np.loadtxt(fname,delimiter=',',dtype=np.float,unpack=True)
     print('hz=',hz)
-    plt.plot(m,hz,'r',label=r'$load Succesful$')
+    plt.plot(m,m,'r',label=r'$load Succesful$')
     plt.legend()
     plt.show()
     return(m,hz)
@@ -58,7 +58,7 @@ def semula_tion(omegam,h):
         #E = np.sqrt(omegam*(1+hz[0]))
         H = h*100
         rouc = (3*H**2)/(8*np.pi*G*10**(-9))
-        roum = rouc*omegam
+        roum = 200*rouc*omegam
         r_200 = (3*ms*10**m[n]/(4*np.pi*roum))**(1/3)
         rs[n] = r_200/c
         rou_0[n] = ms*10**m[n]/((np.log(1+c)-c/(1+c))*4*np.pi*rs[n]**3)
@@ -92,8 +92,8 @@ def semula_tion(omegam,h):
         y = deltasegma[k,:]
         plt.plot(x,y,'-')
     plt.grid()
-    plt.xlabel(r"$lg(R/rs)$")
-    plt.ylabel(r"$lgDeltasigma[Msun*Mpc^-2]$")
+    plt.xlabel(r'$lg(\frac{R}{rs})$')
+    plt.ylabel(r'$\lg(\Delta\Sigma(\frac{R}{rs}))-M_sMpc^{-2}$')
     plt.hold()
     plt.show()
 semula_tion(omegam=True,h=True)
