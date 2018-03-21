@@ -256,11 +256,14 @@ def semula_tion(omegam,h):
     plt.tight_layout()
     #plt.title('S-i')#辛普森积分
     plt.show() 
+    ##下面是高斯积分,采用五点积分高斯公式
+    '''
+    a = [-0.9062,-0.5385,0,0.5385,0.9062]
+    b = [0.23693,0.47863,0.56889,0.47863,0.23693]
+    '''
+    ##
+#下满把结果可视化
+#该部分已做在using里面
 #下面针对10^13太阳质量的情况具体分析
 #这部分预处理在Desigma_using里面
 semula_tion(omegam=True,h=True)
-'''
-if __name__ == "__main__":
-    dolad_data(m=True,hz=True)
-    pass
-'''

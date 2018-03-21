@@ -160,107 +160,62 @@ def semula_tion(omegam,h):
     plt.grid()
     plt.tight_layout()
     plt.show()
-    ##
-    #先找出最接近r200的点，然后从曲线开始点积分到该点
-    s_mm = np.zeros((LL,L-1),dtype=np.float)
-    smm = np.zeros((LL,L-1),dtype=np.float)
-    smm1 = np.zeros((LL,L-1),dtype=np.float)
-    Rs1 = Rs[:,1:L]#这句表示对RS这个数组，每行都只取第二个到最后一个
-    sigma = segma[:,1:L]
-    max_d = np.zeros(LL,dtype=np.float)
-    for k in range(0,LL):
-        dx = (Rs1[k,1]/rs[k])-(Rs1[k,0]/rs[k])
-        s_mm[k,0] = sigma[k,0]*(Rs1[k,0]/rs[k])*dx
-        for t in range(0,L):
-               if Rs[k,t]<=c*rs[k] and t>0:
-                  s_mm[k,t] = s_mm[k,t-1]+sigma[k,t]*(Rs1[k,t]/rs[k])*dx
-                  smm[k,t] = s_mm[k,t]*rs[k]**2*2*np.pi    
-        max_d[k] = np.max(smm[k,:])
-    plt.figure()
-    plt.subplot(2,2,1)
-    for d in range(0,LL):
-        plt.loglog(Rs1[d,:],smm[d,:])
-        plt.grid()
-    plt.xlabel(r'$R-Mpc/h$')
-    plt.ylabel(r'$m_h$')
-    print('smm=',max_d)
-    smm1 = smm
-    plt.subplot(2,2,2)
-    delta1 = np.zeros(LL,dtype=np.float)
-    delta2 = np.zeros(LL,dtype=np.float)
-    for d in range(0,LL):
-        plt.loglog(Rs1[d,:],smm1[d,:])
-        plt.grid()
-        delta1[k] = r_200[k]
-        delta2[k] = 0
-        plt.axvline(delta1[k],ls='--',linewidth=0.5,color='red')
-        plt.axvline(delta2[k],ls='--',linewidth=0.5,color='black')
-    plt.xlabel(r'$R-Mpc/h$')
-    plt.ylabel(r'$m_h$')
-    #plt.title('D-i')#直接积分
-    #检测结果发现从面密度回到质量估计时质量估计值偏大了一个数量级,返回修正因子，参数正常  
-    ##下面是对结果做插值和积分，再回去检测质量是否相等
-    N = 10**5
-    Rsnew = np.zeros((LL,N),dtype=np.float)
-    segma_p = np.zeros((LL,N),dtype=np.float)
-    for k in range(0,LL):
-        Rsnew[k,:] = np.linspace(Rs1[k,0],Rs1[k,-1],N)
-        segma_p[k,:] = np.interp(Rsnew[k,:],Rs1[k,:],sigma[k,:])
-    plt.subplot(2,2,3)
-    delta1 = np.zeros(LL,dtype=np.float)
-    delta2 = np.zeros(LL,dtype=np.float)
-    for k in range(0,LL):       
-        x3 = Rsnew[k,:]
-        y3 = segma_p[k,:]
-        plt.loglog(x3,y3)
-        delta1[k] = r_200[k]
-        delta2[k] = 0
-        plt.axvline(delta1[k],ls='--',linewidth=0.5,color='red')
-        plt.axvline(delta2[k],ls='--',linewidth=0.5,color='black')
-        plt.grid()
-    plt.xlabel(r'$R-Mpc/h$')
-    plt.ylabel(r'$\Delta\Sigma(\frac{R}{rs})-M_{\odot}hMpc^{-2}$')
-    ##插值完成
-    ##下面做辛普森积分
-    smm2 = np.zeros((LL,N),dtype=np.float)
-    smm3 = np.zeros((LL,N),dtype=np.float)
-    dx = np.zeros(LL,dtype=np.float)
-    Rsnew1 = Rsnew
-    segma1 = segma_p
-    max_s = np.zeros(LL,dtype=np.float)
-    for k in range(0,LL):
-        dx[k] = (Rsnew[k,1]-Rsnew[k,0])/rs[k]
-        smm2[k,0] = (segma1[k,0]*(Rsnew[k,0]/rs[k])+4*segma1[k,1]\
-            *(Rsnew[k,1]/rs[k])+segma1[k,2]*(Rsnew[k,t]/rs[k]))*(dx[k]/6)
-        # for t in range(0,N):
-        for t in range(0,N):
-            if Rsnew1[k,t]<=c*rs[k] and t>0:
-               smm2[k,t] = smm2[k,t-1]+(segma1[k,t-1]*(Rsnew[k,t]/rs[k])\
-                   +4*segma1[k,t]*(Rsnew[k,t]/rs[k])+\
-                   segma1[k,t+1]*(Rsnew[k,t]/rs[k]))*(dx[k]/6)
-               smm3[k,t] = smm2[k,t]*rs[k]**2*2*np.pi 
-        max_s[k] = np.max(smm3[k,:])
-    print('smm3=',max_s)
-    plt.subplot(2,2,4)
-    delta1 = np.zeros(LL,dtype=np.float)
-    delta2 = np.zeros(LL,dtype=np.float)
-    for d in range(0,LL):
-        plt.loglog(Rsnew1[d,:],smm3[d,:])
-        delta1[k] = r_200[k]
-        delta2[k] = 0
-        plt.axvline(delta1[k],ls='--',linewidth=0.5,color='red')
-        plt.axvline(delta2[k],ls='--',linewidth=0.5,color='blue')
-        plt.grid()
-    plt.xlabel(r'$R-Mpc/h$')
-    plt.ylabel(r'$m_h$')
-    plt.tight_layout()
-    #plt.title('S-i')#辛普森积分
-    plt.show() 
-#下面针对10^13太阳质量的情况具体分析
-#这部分预处理在Desigma_using里面
+    #下面做对数空间积分
+    '''
+    N=10**(-6)
+    s_bin = np.linspace(N,100,10000)
+    l_s = len(s_bin)
+    r_200g = np.zeros(LL,dtype=np.float)
+    rsg = np.zeros(LL,dtype=np.float)
+    rou_0g = np.zeros(LL,dtype=np.float)
+    Rsg = np.zeros((LL,l_s),dtype=np.float)
+    Rsg = np.zeros((LL,l_s),dtype=np.float)
+    rou_Rg = np.zeros((LL,l_s),dtype=np.float)
+    rg = np.zeros((LL,l_s),dtype=np.float)
+    g_xg = np.zeros((LL,l_s),dtype=np.float)
+    deltasegmag = np.zeros((LL,l_s),dtype=np.float)
+    segmag = np.zeros((LL,l_s),dtype=np.float)
+    for n in range(0,LL):
+       # E = np.sqrt(omegam*(1+hz[0]))
+       # H = h*100*E
+        H = h*100
+        roucg = Qc*(3*H**2)/(8*np.pi*G)
+        roumg = 200*roucg*omegam
+        r_200g[n] = Q200*(3*m[n]/(4*np.pi*roumg))**(1/3)
+        rsg[n] = r_200g[n]/c
+        rou_0g[n] = m[n]/((np.log(1+c)-c/(1+c))*4*np.pi*rsg[n]**3)
+        for t in range(0,l_s):
+            Rsg[n,t] = s_bin[t]*rs[n]
+            rg[n,t] = s_bin[t]*rs[n]
+            #加入对投射方向密度的计算
+            rou_Rg[n,t] = rou_0g[n]*rsg[n]**3/(rg[n,t]*(rsg[n]+rg[n,t])**2)
+            #引入中间函数
+            f0g = Rsg[n,t]/rsg[n]#这是考虑把R参数化的情况
+            if Rsg[n,t]<rsg[n]:
+               f1g = np.arctanh(np.sqrt((1-f0g)/(1+f0g)))
+               f2g = np.log(f0g/2)
+               f4g = f0g**2*np.sqrt(1-f0g**2)
+               f5g = (f0g**2-1)*np.sqrt(1-f0g**2)
+               g_xg[n,t] = 8*f1g/f4g+4*f2g*f0g**(-2)-2/(f0g**2-1)+4*f1g/f5g
+               delta_segma = rsg[n]*rou_0g[n]*g_xg[n,t]
+               deltasegmag[n,t] = delta_segma
+               segmag[n,t] = (2*rsg[n]*rou_0g[n]/(f0g**2-1))*(1-2*f1g/(np.sqrt(1-f0g**2)))
+            elif Rsg[n,t]==rsg[n]:
+                 g_xg[n,t] = 10/3+4*np.log(1/2)
+                 delta_segma = rs[n]*rou_0[n]*g_xg[n,t]
+                 deltasegmag[n,t] = delta_segma
+                 segmag[n,t] = 2*rsg[n]*rou_0g[n]/3
+            else:
+                 f1g = np.arctan(np.sqrt((f0g-1)/(f0g+1)))
+                 f2g = np.log(f0g/2)
+                 f4g = f0g**2*np.sqrt(f0g**2-1)
+                 f5g = (f0g**2-1)**(3/2)
+                 g_xg[n,t]= 8*f1g/f4g+4*f2g*f0g**(-2)-2/(f0g**2-1)+4*f1g/f5g
+                 delta_segma = rsg[n]*rou_0g[n]*g_xg[n,t]
+                 deltasegmag[n,t] = delta_segma
+                 segmag[n,t] = 2*rsg[n]*rou_0g[n]*(1-2*f1g/np.sqrt(f0g**2-1))/(f0g**2-1)
+'''
+##先做区间划分，再在次基础上积分
+
+##
 semula_tion(omegam=True,h=True)
-'''
-if __name__ == "__main__":
-    dolad_data(m=True,hz=True)
-    pass
-'''
