@@ -1,6 +1,7 @@
 import os.path
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
+##需要运行做图命令时补上该句
 #section1:数据导入
 def dolad_data(m,hz):
     _mh_path ='D:/Python1/pydocument/seniorproject_quenching2/practice/'
@@ -10,13 +11,15 @@ def dolad_data(m,hz):
     fname = os.path.join(_mh_path,'data_z.txt')
     hz = np.loadtxt(fname,delimiter=',',dtype=np.float,unpack=True)
     print('hz=',hz)
+    '''
     plt.plot(m,m,'r',label=r'$load Succesful$')
     plt.legend()
     plt.show()
+    '''
     return(m,hz)
 #dolad_data(m=True,hz=True)
 #sction2:数据处理
-def semula_tion(omegam,h):
+def constant_f(t1,t2):
     m,hz = dolad_data(m=True,hz=True)
     m_ = m
     #考虑共动坐标分析，令z=0
@@ -38,9 +41,19 @@ def semula_tion(omegam,h):
     ms = ms_  
     '''
     global c_
-    c_ = 2.5
+    c_ = 3
     c = c_
+    #单位修正因子
+    Qc = 0.1412#对rouc的单位修正（此时对roum、rou0的也完成了修正）
+    Q200 = 0.7#对r200的单位修正（此时对rs也做了修正）
+    return(Q200,Qc,c,G,h,omegam,hz,m_)
+constant_f(t1=True,t2=True)
+'''
 #下面开始计算
+def semula_tion(omegam,h):
+    Q200,Qc,c,G,h,omegam,hz,m_=constant_f(t1=True,t2=True)
+    m = 0.7*10**m_
+    #对导入的数据做单位转化转为:太阳质量/h
     LL = len(m)
     R = np.linspace(0,100,10000)
     L = len(R)
@@ -56,12 +69,6 @@ def semula_tion(omegam,h):
     inm = np.zeros(LL,dtype=np.float)
     #加入投射距离上的密度变化
     rou_R = np.zeros((LL,L),dtype=np.float)
-    #对导入的数据做单位转化转为:太阳质量/h
-    m = 0.7*10**m_
-    #单位修正因子
-    Qc = 0.1412#对rouc的单位修正（此时对roum、rou0的也完成了修正）
-    Q200 = 0.7#对r200的单位修正（此时对rs也做了修正）
-    #
     for n in range(0,LL):
        # E = np.sqrt(omegam*(1+hz[0]))
        # H = h*100*E
@@ -150,13 +157,13 @@ def semula_tion(omegam,h):
     delta1 = np.zeros(LL,dtype=np.float)
     delta2 = np.zeros(LL,dtype=np.float)
     for k in range(0,LL):
-        plt.loglog(Rs[k,:],segma[k,:])
+        plt.loglog(Rs[k,:],deltasegma[k,:])
         delta1[k] = r_200[k]
         delta2[k] = 0
         plt.axvline(delta1[k],ls='--',linewidth=0.5,color='red')
         plt.axvline(delta2[k],ls='--',linewidth=0.5,color='black')
-    plt.xlabel(r'$r-Mpc/h$')
-    plt.ylabel(r'$\Sigma-M_\odot-h/{Mpc^2}$')
+    plt.xlabel(r'$R-Mpc/h$')
+    plt.ylabel(r'$\Delta\Sigma-M_\odot-h/{Mpc^2}$')
     plt.grid()
     plt.tight_layout()
     plt.show()
@@ -219,7 +226,7 @@ def semula_tion(omegam,h):
         plt.axvline(delta2[k],ls='--',linewidth=0.5,color='black')
         plt.grid()
     plt.xlabel(r'$R-Mpc/h$')
-    plt.ylabel(r'$\Delta\Sigma(\frac{R}{rs})-M_{\odot}hMpc^{-2}$')
+    plt.ylabel(r'$\Sigma(\frac{R}{rs})-M_{\odot}hMpc^{-2}$')
     ##插值完成
     ##下面做辛普森积分
     smm2 = np.zeros((LL,N),dtype=np.float)
@@ -259,7 +266,7 @@ def semula_tion(omegam,h):
 #下面针对10^13太阳质量的情况具体分析
 #这部分预处理在Desigma_using里面
 semula_tion(omegam=True,h=True)
-'''
+
 if __name__ == "__main__":
     dolad_data(m=True,hz=True)
     pass

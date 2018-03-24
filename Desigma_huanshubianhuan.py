@@ -167,13 +167,13 @@ def semula_tion(omegam,h):
     delta1 = np.zeros(LL,dtype=np.float)
     delta2 = np.zeros(LL,dtype=np.float)
     for k in range(0,LL):
-        plt.loglog(Rs[k,:],segma[k,:])
+        plt.loglog(Rs[k,:],deltasegma[k,:])
         delta1[k] = r_200[k]
         delta2[k] = 0
         plt.axvline(delta1[k],ls='--',linewidth=0.5,color='red')
         plt.axvline(delta2[k],ls='--',linewidth=0.5,color='black')
     plt.xlabel(r'$r-Mpc/h$')
-    plt.ylabel(r'$\Sigma-M_\odot-h/{Mpc^2}$')
+    plt.ylabel(r'$\Delta\Sigma-M_\odot-h/{Mpc^2}$')
     plt.grid()
     plt.tight_layout()
     plt.show()
@@ -237,7 +237,7 @@ def semula_tion(omegam,h):
         plt.axvline(delta2[k],ls='--',linewidth=0.5,color='black')
         plt.grid()
     plt.xlabel(r'$R-Mpc/h$')
-    plt.ylabel(r'$\Delta\Sigma(\frac{R}{rs})-M_{\odot}hMpc^{-2}$')
+    plt.ylabel(r'$\Sigma(R)-M_{\odot}hMpc^{-2}$')
     ##插值完成
     ##下面做辛普森积分
     smm2 = np.zeros((LL,N),dtype=np.float)

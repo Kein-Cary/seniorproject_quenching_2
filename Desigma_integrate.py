@@ -113,9 +113,9 @@ def semula_tion(omegam,h):
     for k in range(0,LL):
         plt.loglog(r[k,:],rou_R[k])
         delta1[k] = r_200[k]
-        delta2[k] = 0
+        delta2[k] = rs[k]
         plt.axvline(delta1[k],ls='--',linewidth=0.5,color='red')
-        plt.axvline(delta2[k],ls='--',linewidth=5,color='blue')
+        plt.axvline(delta2[k],ls='--',linewidth=0.5,color='blue')
     plt.xlabel(r'$r-Mpc/h$')
     plt.ylabel(r'$\rho(R)-M_\odot/h$')
     plt.grid()
@@ -140,7 +140,7 @@ def semula_tion(omegam,h):
     for k in range(0,LL):
         plt.loglog(r[k,:],Mm[k,:]/0.7)
         delta1[k] = r_200[k]
-        delta2[k] = 0
+        delta2[k] = rs[k]
         plt.axvline(delta1[k],ls='--',linewidth=0.5,color='red')
         plt.axvline(delta2[k],ls='--',linewidth=0.5,color='black')
     plt.xlabel(r'$r-Mpc/h$')
@@ -152,7 +152,7 @@ def semula_tion(omegam,h):
     for k in range(0,LL):
         plt.loglog(Rs[k,:],segma[k,:])
         delta1[k] = r_200[k]
-        delta2[k] = 0
+        delta2[k] = rs[k]
         plt.axvline(delta1[k],ls='--',linewidth=0.5,color='red')
         plt.axvline(delta2[k],ls='--',linewidth=0.5,color='black')
     plt.xlabel(r'$r-Mpc/h$')
@@ -192,7 +192,7 @@ def semula_tion(omegam,h):
         plt.loglog(Rs1[d,:],smm1[d,:])
         plt.grid()
         delta1[k] = r_200[k]
-        delta2[k] = 0
+        delta2[k] = rs[k]
         plt.axvline(delta1[k],ls='--',linewidth=0.5,color='red')
         plt.axvline(delta2[k],ls='--',linewidth=0.5,color='black')
     plt.xlabel(r'$R-Mpc/h$')
@@ -214,7 +214,7 @@ def semula_tion(omegam,h):
         y3 = segma_p[k,:]
         plt.loglog(x3,y3)
         delta1[k] = r_200[k]
-        delta2[k] = 0
+        delta2[k] = rs[k]
         plt.axvline(delta1[k],ls='--',linewidth=0.5,color='red')
         plt.axvline(delta2[k],ls='--',linewidth=0.5,color='black')
         plt.grid()
@@ -247,7 +247,7 @@ def semula_tion(omegam,h):
     for d in range(0,LL):
         plt.loglog(Rsnew1[d,:],smm3[d,:])
         delta1[k] = r_200[k]
-        delta2[k] = 0
+        delta2[k] = rs[k]
         plt.axvline(delta1[k],ls='--',linewidth=0.5,color='red')
         plt.axvline(delta2[k],ls='--',linewidth=0.5,color='blue')
         plt.grid()
