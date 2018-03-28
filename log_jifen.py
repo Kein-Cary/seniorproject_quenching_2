@@ -1,7 +1,11 @@
 import sys
 sys.path.insert(0,'D:/Python1/pydocument/seniorproject_quenching2/practice')
+##导入自己编写的脚本，需要加入这两句，一句声明符号应用，然后声明需要引入文-
+#件的路径具体到文件夹
 from Desigma_checking import  dolad_data
 from Desigma_checking import  constant_f
+#在上述路径下导入的两个自己编辑的脚本，并且是导入脚本里面的某个模块
+#导入文件中已包含单位变换
 import numpy as np
 import matplotlib.pyplot as plt
 def rou_R(R):
@@ -34,6 +38,7 @@ def rou_R(R):
             rouR[k,t] = rou0[k]*rs[k]**3/(r[k,t]*(rs[k]+r[k,t])**2)
         integm[k] = (4*np.pi*rou0[k]*rs[k]**3*(np.log(1+\
                r200[k]/rs[k])-r200[k]/(rs[k]+r200[k])))/0.7
+    #integm表示直接从积分的解析函数出发，检查积分质量是多少，理论上该值应严格等于输入质量
     plt.figure()
     delta1 = np.zeros(lm,dtype=np.float)
     delta2 = np.zeros(lm,dtype=np.float)
@@ -67,8 +72,11 @@ def rou2(x):
             if x[t]<=np.log10(r200[k]/rs[k]) and t>0:
                int_m[k,t] = int_m[k,t-1]+\
                rs[k]**3*4.0*np.pi*np.log(10)*lR[t]**3.0*dx*(y[k,t]+y[k,t-1])/2.0
-        max_m[k] = np.max(int_m[k,:])
+            #直接的对数空间积分变换计算，因为存在计算误差，直接积分的质量并不能严格等于输入
+            #但是两者的误差要越小越好
+        max_m[k] = np.max(int_m[k,:])#求出每一次积分的最后结果，作为检测质量，和输入比较
     plt.figure()
+    #下面两个变量是为了做垂直标度线取得狄拉克函数
     delta1 = np.zeros(lm,dtype=np.float)
     delta2 = np.zeros(lm,dtype=np.float)
     for n in range(0,lm):
@@ -77,6 +85,7 @@ def rou2(x):
         delta2[k] = np.log10(rs[n])
         plt.axvline(delta1[k],ls='--',linewidth=0.5,color='red')
         plt.axvline(delta2[k],ls='--',linewidth=0.5,color='black')
+        #axvline表示快速做图函数命令，做水平线的见脚本Desigma_comoving.(一开始的数据导入测试)
     plt.grid()
     plt.xlabel(r'$log10(r/rs)$')
     plt.ylabel(r'$log10(\frac{mh}{m_\odot})$')
@@ -84,3 +93,4 @@ def rou2(x):
     print('mh=',max_m/0.7)    
     return(max_m)
 rou2(x=True)
+##待补充：尝试用函数调用实现上诉过程

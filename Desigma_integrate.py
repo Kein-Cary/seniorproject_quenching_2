@@ -107,6 +107,8 @@ def semula_tion(omegam,h):
                  deltasegma[n,t] = delta_segma
                  segma[n,t] = 2*rs[n]*rou_0[n]*(1-2*f1/np.sqrt(f0**2-1))/(f0**2-1)
     plt.figure()
+    plt.legend([r'$10^{12}-M_\odot/h$',r'$10^{13}-M_\odot/h$',\
+    r'$10^{14}-M_\odot/h$'],bbox_to_anchor=(1,1),loc=10)
     plt.subplot(131)
     delta1 = np.zeros(LL,dtype=np.float)
     delta2 = np.zeros(LL,dtype=np.float)
@@ -155,6 +157,8 @@ def semula_tion(omegam,h):
         delta2[k] = rs[k]
         plt.axvline(delta1[k],ls='--',linewidth=0.5,color='red')
         plt.axvline(delta2[k],ls='--',linewidth=0.5,color='black')
+    plt.legend([r'$10^{12}-M_\odot/h$',r'$10^{13}-M_\odot/h$',\
+    r'$10^{14}-M_\odot/h$'],bbox_to_anchor=(1.25,1.5))
     plt.xlabel(r'$r-Mpc/h$')
     plt.ylabel(r'$\Sigma-M_\odot-h/{Mpc^2}$')
     plt.grid()
@@ -251,6 +255,8 @@ def semula_tion(omegam,h):
         plt.axvline(delta1[k],ls='--',linewidth=0.5,color='red')
         plt.axvline(delta2[k],ls='--',linewidth=0.5,color='blue')
         plt.grid()
+    plt.legend([r'$10^{12}-M_\odot/h$',r'$10^{13}-M_\odot/h$',\
+    r'$10^{14}-M_\odot/h$'],bbox_to_anchor=(-1,3.5))
     plt.xlabel(r'$R-Mpc/h$')
     plt.ylabel(r'$m_h$')
     plt.tight_layout()

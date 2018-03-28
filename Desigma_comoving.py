@@ -91,6 +91,8 @@ def semula_tion(omegam,h):
         x = np.log10(Rs[k,:]/rs[k])
         y = deltasegma[k,:]
         plt.plot(x,y,'-')
+        plt.legend([r'$10^{12}M_\odot$',r'$10^{13}M_\odot$',r'$10^{14}M_\odot$'])
+        plt.axhline(deltasegma[k,1],linewidth=0.5,ls='--',color='r')
     plt.grid()
     plt.xlabel(r'$lg(\frac{R}{rs})$')
     plt.ylabel(r'$\lg(\Delta\Sigma(\frac{R}{rs}))-M_sMpc^{-2}$')
