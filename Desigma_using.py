@@ -262,7 +262,7 @@ def semula_tion(omegam,h):
     #设置子图的长宽高间隔
     # fig.tight_layout(pad=1.08,h_pad=None,w_pad=None,rect=None)
     fig.tight_layout(pad=2.0,w_pad=2.0,h_pad=2.0)
-    #
+    #该句表示对子图的间距调整
     ax1 = plt.subplot(221)
     for k in range(0,LL):
         ax1.loglog(r[k,:],rou_R[k])  

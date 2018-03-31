@@ -3,14 +3,16 @@ import sys
 sys.path.insert(0,'D:/Python1/pydocument/seniorproject_quenching2/practice')
 ##导入自己编写的脚本，需要加入这两句，一句声明符号应用，然后声明需要引入文-
 #件的路径具体到文件夹
-from read_m16 import read_m16_ds
-from read_m16 import read_m16_mass
-from read_m16 import test_read_m16_mass
+#from read_m16 import read_m16_ds
+#from read_m16 import read_m16_mass
+#from read_m16 import test_read_m16_mass
 from read_m16 import test_read_m16_ds
 import os.path
 import numpy as np
 import matplotlib.pyplot as plt
 #import pandas as pd
+from scipy.stats import t as st
+#画误差棒函数须引入scipy库
 def dolad_data(m,hz):
     _mh_path ='D:/Python1/pydocument/seniorproject_quenching2/practice/'
     fname = os.path.join(_mh_path,'data_mh1.txt') 
@@ -18,16 +20,16 @@ def dolad_data(m,hz):
     print('m=',m)
     fname = os.path.join(_mh_path,'data_z.txt')
     hz = np.loadtxt(fname,delimiter=',',dtype=np.float,unpack=True)
-    print('hz=',hz)
+    # print('hz=',hz)
     #plt.plot(m[0,:],m[1,:],label='Doload-successfully')
     #plt.legend()
     #plt.show()
     lmw = len(m[:,0])
     lml = len(m[0,:])
     m_dex = np.linspace(11,15,lmw)
-    print('lmw=',lmw)
-    print('lml=',lml)
-    print('dex=',m_dex)
+    # print('lmw=',lmw)
+    # print('lml=',lml)
+    # print('dex=',m_dex)
     return(m,m_dex,lmw,lml)
 #dolad_data(m=True,hz=True)
 
@@ -40,7 +42,7 @@ def semula_tion(m_,x):
     omegam = omega_m
 #a flat CDM model,omegak=0;omegalamd=0
     global h_
-    h_ = 0.70
+    h_ = 0.673
     h = h_
     global G_
     G_ = 6.67*10**(-11)
@@ -51,11 +53,13 @@ def semula_tion(m_,x):
     global c_
     c_ = 3.5
     ##调试结果c=3.25~3.75之间比较合适
+    ##根据文献修改c如下
+    # c_ = 10**0.12
     c = c_
 #下面开始计算
     #对导入的数据做单位转化转为:太阳质量/h
     print('mh=',m_)
-    m1 = 0.7*m_*10**x
+    m1 = h*m_*10**x
     # m2 = 0.7*10**_m
     LL = len(m1)
     R = np.linspace(0,100,1500)
@@ -93,7 +97,7 @@ def semula_tion(m_,x):
             #密度单位转化
             ##检测积分质量，并换位太阳质量单位
             inm[n] = (4*np.pi*rho_0[n]*rs[n]**3*(np.log(1+\
-               r_200[n]/rs[n])-r_200[n]/(rs[n]+r_200[n])))/0.7
+               r_200[n]/rs[n])-r_200[n]/(rs[n]+r_200[n])))/h
             ##
             #引入中间函数
             f0 = Rp[n,t]/rs[n]#这是考虑把R参数化的情况
@@ -135,7 +139,7 @@ def calcu_sigma(Rpc,m_,x):
     omegam = omega_m
 #a flat CDM model,omegak=0;omegalamd=0
     global h_
-    h_ = 0.70
+    h_ = 0.673
     h = h_
     global G_
     G_ = 6.67*10**(-11)
@@ -146,10 +150,12 @@ def calcu_sigma(Rpc,m_,x):
     global c_
     c_ = 3.5
     ##调试结果c=3.25~3.75之间比较合适
+    ##根据文献修改c如下
+    #c_ = 10**0.12
     c = c_
 #下面开始计算
     #对导入的数据做单位转化转为:太阳质量/h
-    m1 = 0.7*m_*10**x
+    m1 = h*m_*10**x
     # m2 = 0.7*10**_m
     # LL = len(m1)
     # R = np.linspace(0,100,1500)
@@ -241,7 +247,6 @@ def fig_f(inm,Rp,r,rs,r_200,rho_R,sigma,deltasigma):
         plt.axvline(delta2[k],ls='--',linewidth=0.5,color='blue')
     plt.xlabel(r'$R-Mpc/h$')
     plt.ylabel(r'$\Delta\Sigma-M_\odot-h/{Mpc^2}$')
-    plt.grid()
     plt.tight_layout()
     plt.show()
     out=[inm,rho_R,deltasigma,sigma]
@@ -249,25 +254,24 @@ def fig_f(inm,Rp,r,rs,r_200,rho_R,sigma,deltasigma):
 #fig_f(inm=True,Rs=True,r=True,rs=True,r_200=True,rho_R=True,sigma=True,deltasigma=True)
 #fig_f(ff=True)
 ##定义一个五个质量最佳预测和观测的对比图象
-def fig_ff(Rpc,ds_sim,lmw,fitr,fitb):
-    plt.subplot(121)
+def fig_ff(Rpc,ds_sim,lmw,r):
     test_read_m16_ds()
     for k in range(0,lmw):
-        pa = fitr[k,1]
+        pa = r[k,1]
         plt.plot(Rpc[:],ds_sim[k,pa,:],'-*')
+        nn = ds_sim[k,pa,:].size#求样本大小
+        x_mean = np.mean(ds_sim[k,pa,:])#求算术平均值
+        x_std = np.std(ds_sim[k,pa,:])#求标准偏差
+        x_se = x_std/np.sqrt(nn)#求标准误差
+        dof = nn-1#自由度计算
+        alpha = 1.0-0.95
+        conf_region = st.ppf(1-alpha/2.,dof)*x_std*\
+        np.sqrt(1.+1./nn)#设置置信区间
+        plt.errorbar(Rpc[:],ds_sim[k,pa,:],yerr=x_std,fmt='-',linewidth=0.5)
     plt.xlabel(r'$R-Mpc/h$')
-    plt.ylabel(r'$\Delta\Sigma-M_\odot-h/{Mpc^2}$')
-    plt.subplot(122)
-    test_read_m16_ds()
-    for k in range(0,lmw):
-        pb = fitb[k,1]
-        plt.plot(Rpc[:],ds_sim[k,pb,:],'-*')
-    plt.xlabel(r'$R-Mpc/h$')
-    plt.ylabel(r'$\Delta\Sigma-M_\odot-h/{Mpc^2}$')
-    plt.tight_layout()
-    plt.show()    
+    plt.ylabel(r'$\Delta\Sigma-M_\odot-h/{Mpc^2}$')   
     return()
-#fig_ff(Rpc=True,ds_sim=True,lmw=True,fitr=True,fitb=True)
+#fig_ff(Rpc=True,ds_sim=True,lmw=True,r=True)
 #fig_ff(f=True)
 ##
 def fit_data(y):
@@ -279,10 +283,13 @@ def fit_data(y):
     a = np.shape(dssa)
     print('size a=',a)
     rp = [rsa[0,k] for k in range(0,len(rsa[0,:])) if rsa[0,k]*0.7<=2] 
-    #该句直接对数组筛选，计算2Mpc以内（保证NFW模型适用的情况下）的信号，
+    #该句直接对数组筛选，计算2Mpc以内（保证NFW模型适用的情况下）信号
+    # rp = [rsa[0,k] for k in range(0,len(rsa[0,:])) if rsa[0,k]<=1 and rsa[0,k]>=0.3]
+    # 该句根据文献修改rp范围，0.3Mpc/h~1Mpc/h
     print(rp)
     b = len(rp)
     m,m_dex,lmw,lml = dolad_data(m=True,hz=True)
+    '''
     for k in range(0,lmw):
         m_ = m[k,:]
         x = m_dex[k]
@@ -290,17 +297,18 @@ def fit_data(y):
       # semula_tion(m_,x) #单独运行该句需要把画图的模块并入semula_tion模块
         inm,Rp,r,rs,r_200,rho_R,sigma,deltasigma=semula_tion(m_,x)
         fig_f(inm,Rp,r,rs,r_200,rho_R,sigma,deltasigma)
+    '''
     #下面做两组数据的方差比较,注意不能对观测数据进行插值
     #比较方法，找出观测的sigma数值对应的Rp,再根据模型计算此时的模型数值Sigma（该步以完成）    
     ds_sim = np.zeros((lmw,lml,b),dtype=np.float)
     for k in range(0,lmw):
         for t in range(0,lml):
-            m_ = m[k,t]
-            x = m_dex[k]
-            Rpc = rp
-            #计算模型在对应的投射距离上的预测信号取值
-            Rpc,Sigma,deltaSigma = calcu_sigma(Rpc,m_,x)
-            ds_sim[k,t,:] = deltaSigma
+                m_ = m[k,t]
+                x = m_dex[k]
+                Rpc = rp
+                #计算模型在对应的投射距离上的预测信号取值
+                Rpc,Sigma,deltaSigma = calcu_sigma(Rpc,m_,x)
+                ds_sim[k,t,:] = deltaSigma
     yy = np.shape(ds_sim)
     print(yy)#输出查看ds_sim的维度，即模型预测下的透镜信号    
     #比较观测的sigma和预测的Sigma,比较结果用fitr和fitb记录比较结果
@@ -333,9 +341,23 @@ def fit_data(y):
     print(fitr)
     print(fitb)
     #下面做图比较几个最佳预测值与观测的对比情况
+    '''
     Rpc = rp
-    fig_ff(Rpc,ds_sim,lmw,fitr,fitb)
-    #
+    plt.subplot(221)
+    fig_ff(Rpc,ds_sim,lmw,fitr)
+    plt.title('R-galaxy')
+    plt.subplot(222)
+    fig_ff(Rpc,ds_sim,lmw,fitb)
+    plt.title('B-galaxy')
+    plt.subplot(223)
+    plt.plot(m_dex,np.log10(delta_r))
+    plt.title('R-galaxy')
+    plt.subplot(224)
+    plt.title('B-galaxy')
+    plt.plot(m_dex,np.log10(delta_b))
+    plt.tight_layout()
+    plt.show() 
+    '''
     #比较提取出的五个最小值的最小值为最后结果
     deltar = np.zeros(lmw,dtype=np.float)
     deltab = np.zeros(lmw,dtype=np.float)
@@ -355,11 +377,17 @@ def fit_data(y):
     print(bestfb)    
     bestr = m[bestfr[0],bestfr[1]]
     bestb = m[bestfb[0],bestfb[1]]
-    print('mr=',bestr*10**m_dex[bestfr[0]])
-    print('mb=',bestb*10**m_dex[bestfb[0]])
+    best_mr = bestr
+    best_mb = bestb
+    print(best_mr,best_mb)# 此句质量计算正常
+    dexr = m_dex[bestfr[0]]
+    dexb = m_dex[bestfr[0]]
+    print('mr=',best_mr*10**dexr)
+    print('mb=',best_mb*10**dexb)
 #下面把比较结果的质量存入文件data_mh.txt里面，并对相应的数据做积分处理
 #下面的模块做积分检查,理论上入股从deltasegma的积分可以得到mh
 #积分部分参考log_jifen.py模块
+    return rp,best_mr,best_mb,dexr,dexb,a,b,yy 
 fit_data(y=True)
 '''
 if __name__ == "__main__":

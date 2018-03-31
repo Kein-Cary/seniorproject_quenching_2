@@ -7,10 +7,10 @@ def dolad_data(m,hz):
     _mh_path ='D:/Python1/pydocument/seniorproject_quenching2/practice/'
     fname = os.path.join(_mh_path,'data_m.txt')
     m = np.loadtxt(fname,delimiter=',',dtype=np.float,unpack=True)  
-    print('m=',m)
+    # print('m=',m)
     fname = os.path.join(_mh_path,'data_z.txt')
     hz = np.loadtxt(fname,delimiter=',',dtype=np.float,unpack=True)
-    print('hz=',hz)
+    # print('hz=',hz)
     '''
     plt.plot(m,m,'r',label=r'$load Succesful$')
     plt.legend()
@@ -30,7 +30,7 @@ def constant_f(t1,t2):
     omegam = omega_m
 #a flat CDM model,omegak=0;omegalamd=0
     global h_
-    h_ = 0.70
+    h_ = 0.673
     h = h_
     global G_
     G_ = 6.67*10**(-11)
@@ -52,7 +52,7 @@ constant_f(t1=True,t2=True)
 #下面开始计算
 def semula_tion(omegam,h):
     Q200,Qc,c,G,h,omegam,hz,m_=constant_f(t1=True,t2=True)
-    m = 0.7*10**m_
+    m = h*10**m_
     #对导入的数据做单位转化转为:太阳质量/h
     LL = len(m)
     R = np.linspace(0,100,10000)
