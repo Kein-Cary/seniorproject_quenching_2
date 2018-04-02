@@ -8,6 +8,7 @@ sys.path.insert(0,'D:/Python1/pydocument/seniorproject_quenching2/practice')
 #from read_m16 import test_read_m16_mass
 from read_m16 import test_read_m16_ds
 import os.path
+#该句表示路径包调用
 import numpy as np
 import matplotlib.pyplot as plt
 #import pandas as pd
@@ -15,7 +16,8 @@ from scipy.stats import t as st
 #画误差棒函数须引入scipy库
 def dolad_data(m,hz):
     _mh_path ='D:/Python1/pydocument/seniorproject_quenching2/practice/'
-    fname = os.path.join(_mh_path,'data_mh1.txt') 
+    fname = os.path.join(_mh_path,'data_mh1.txt')
+    #上述两句表示文件调用并打开数据
     m = np.loadtxt(fname,delimiter=',',dtype=np.float,unpack=True)    
     print('m=',m)
     fname = os.path.join(_mh_path,'data_z.txt')
@@ -246,7 +248,7 @@ def fig_f(inm,Rp,r,rs,r_200,rho_R,sigma,deltasigma):
         plt.axvline(delta1[k],ls='--',linewidth=0.5,color='red')
         plt.axvline(delta2[k],ls='--',linewidth=0.5,color='blue')
     plt.xlabel(r'$R-Mpc/h$')
-    plt.ylabel(r'$\Delta\Sigma-M_\odot-h/{Mpc^2}$')
+    plt.ylabel(r'$\Delta\Sigma-hM_\odot/{pc^2}$')
     plt.tight_layout()
     plt.show()
     out=[inm,rho_R,deltasigma,sigma]
@@ -269,7 +271,7 @@ def fig_ff(Rpc,ds_sim,lmw,r):
         np.sqrt(1.+1./nn)#设置置信区间
         plt.errorbar(Rpc[:],ds_sim[k,pa,:],yerr=x_std,fmt='-',linewidth=0.5)
     plt.xlabel(r'$R-Mpc/h$')
-    plt.ylabel(r'$\Delta\Sigma-M_\odot-h/{Mpc^2}$')   
+    plt.ylabel(r'$\Delta\Sigma-hM_\odot/{pc^2}$')   
     return()
 #fig_ff(Rpc=True,ds_sim=True,lmw=True,r=True)
 #fig_ff(f=True)
@@ -282,10 +284,9 @@ def fit_data(y):
     #print('rp=',rsa)  
     a = np.shape(dssa)
     print('size a=',a)
-    rp = [rsa[0,k] for k in range(0,len(rsa[0,:])) if rsa[0,k]*0.7<=2] 
+    rp = [rsa[0,k] for k in range(0,len(rsa[0,:])) if rsa[0,k]*0.673<=2]
+   # rp = rsa[0,:]
     #该句直接对数组筛选，计算2Mpc以内（保证NFW模型适用的情况下）信号
-    # rp = [rsa[0,k] for k in range(0,len(rsa[0,:])) if rsa[0,k]<=1 and rsa[0,k]>=0.3]
-    # 该句根据文献修改rp范围，0.3Mpc/h~1Mpc/h
     print(rp)
     b = len(rp)
     m,m_dex,lmw,lml = dolad_data(m=True,hz=True)

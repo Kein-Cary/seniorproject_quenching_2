@@ -94,6 +94,11 @@ def c_fit_datar(u):
     best_mr = bestr
     print(dexr)
     print(best_mr)
+    #作图对比最佳情况
+    plt.figure()
+    fig_ff(rp,dssimr,lmr,fitr)
+    plt.title('Red')
+    plt.show()
    # print('mr=',best_mr*10**d_ex_r)
    # return rp,best_mr,dexr,a,delta_r,a,b,yy
     return delta_r,lmr,dssimr,fitr,delta_rr,xrr
@@ -156,6 +161,11 @@ def c_fit_datab(v):
     best_mb = bestb
     print(dexb)
     print(best_mb)
+    #作图对比最佳情况
+    plt.figure()
+    fig_ff(rp,dssimb,lmb,fitb)
+    plt.title('blue')
+    plt.show()
    # print('mb=',best_mb*10**dexb)
    # return rp,best_mb,,dexb,a,b,yy,delta_b 
     return delta_b,lmb,dssimb,fitb,delta_bb,xbb

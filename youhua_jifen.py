@@ -146,8 +146,8 @@ def my_fun(d_exr,d_exb):
     #pre1 = minimize(c_fit_datar,x0=x0r[0], method='Nelder-Mead',tol=1e-5)
     #pre2 = minimize(c_fit_datab,x0=x0b[0], method='Nelder-Mead',tol=1e-5)
     ##下面两句表示可以根据调用函数的关键字返回自己需要的值
-    print('pre1=',pre1.fun)
-    print('pre2=',pre2.fun)
+    print('pre1=',pre1)
+    print('pre2=',pre2)
     return pre1,pre2
 my_fun(d_exr=True,d_exb=True)
 #下面做图比较最佳预测值与观测的对比情况
