@@ -35,197 +35,9 @@ def dolad_data(m,hz):
     # print('dex=',m_dex)
     return(m,m_dex,lmw,lml)
 #dolad_data(m=True,hz=True)
-
 #sction2:数据处理
-def semula_tion(m_,x):
-    #考虑共动坐标分析，令z=0
-    # hz[0] = 0
-    global omega_m
-    omega_m = 0.315
-    omegam = omega_m
-#a flat CDM model,omegak=0;omegalamd=0
-    global h_
-    h_ = 0.673
-    h = h_
-    global G_
-    G_ = 6.67*10**(-11)
-    G = G_
-  #  global ms_
-  #  ms_ = 1.989*10**(30)
-  #  ms = ms_  
-    global c_
-    c_ = 3.5
-    ##调试结果c=3.25~3.75之间比较合适
-    c = c_
-#下面开始计算
-    #对导入的数据做单位转化转为:太阳质量/h
-    print('mh=',m_)
-    m1 = h*m_*10**x
-    #m1 = m_*10**x
-    LL = len(m1)
-    R = np.linspace(0,100,1500)
-    L = len(R)
-    Rp = np.zeros((LL,L),dtype=np.float)
-    g_x = np.zeros((LL,L),dtype=np.float)
-    deltasigma = np.zeros((LL,L),dtype=np.float)
-    sigma = np.zeros((LL,L),dtype=np.float)
-    rs =  np.zeros(LL,dtype=np.float)
-    r = np.zeros((LL,L),dtype=np.float)
-    r_200 =  np.zeros(LL,dtype=np.float)
-    rho_0 = np.zeros(LL,dtype=np.float)
-    #检测质量
-    inm = np.zeros(LL,dtype=np.float)
-    #加入投射距离上的密度变化
-    rho_R = np.zeros((LL,L),dtype=np.float)
-    #单位修正因子
-    #Qc = 0.1412#对rouc的单位修正（此时对roum、rou0的也完成了修正）
-    #Q200 = 0.7
-    ##重新对单位修正因子订正如下：
-    Qc = 3.084*10**(-2)/(1.989*h**2)#对rouc的单位修正（此时对roum、rou0的也完成了修正）
-    Q200 = 1#对r200的单位修正（此时对rs也做了修正）
-    for n in range(0,LL):
-        # E = np.sqrt(omegam*(1+hz[0]))
-        # H = h*100*E
-        H = h*100
-        #修正
-        #E = np.sqrt((1+z)**3*omegam)
-        #H = h*100*E
-        #
-        rouc = Qc*(3*H**2)/(8*np.pi*G)
-        roum = 200*rouc*omegam
-        r_200[n] = Q200*(3*m1[n]/(4*np.pi*roum))**(1/3)
-        rs[n] = r_200[n]/c
-        rho_0[n] = m1[n]/((np.log(1+c)-c/(1+c))*4*np.pi*rs[n]**3)
-        for t in range(0,L):
-            Rp[n,t] = R[t]*rs[n]
-            r[n,t] = R[t]*rs[n]
-            #加入对投射方向密度的计算
-            rho_R[n,t] = rho_0[n]*rs[n]**3/(r[n,t]*(rs[n]+r[n,t])**2)
-            #密度单位转化
-            ##检测积分质量，并换位太阳质量单位
-            inm[n] = (4*np.pi*rho_0[n]*rs[n]**3*(np.log(1+\
-               r_200[n]/rs[n])-r_200[n]/(rs[n]+r_200[n])))/h
-            ##
-            #引入中间函数
-            f0 = Rp[n,t]/rs[n]#这是考虑把R参数化的情况
-            if Rp[n,t]<rs[n]:
-               f1 = np.arctanh(np.sqrt((1-f0)/(1+f0)))
-               f2 = np.log(f0/2)
-               f4 = f0**2*np.sqrt(1-f0**2)
-               f5 = (f0**2-1)*np.sqrt(1-f0**2)
-               g_x[n,t] = 8*f1/f4+4*f2*f0**(-2)-2/(f0**2-1)+4*f1/f5
-               delta_segma = rs[n]*rho_0[n]*g_x[n,t]
-              # deltasigma[n,t] = delta_segma  #(原有计算,面积单位为Mpc^2)
-              # 为了和观测对比，把单位转为Msun*h/pc^2,即把面积单位转为pc^2
-               deltasigma[n,t] = delta_segma*10**(-12)
-               sigma[n,t] = (2*rs[n]*rho_0[n]/(f0**2-1))*(1-2*f1/(np.sqrt(1-f0**2)))
-            elif Rp[n,t]==rs[n]:
-                 g_x[n,t] = 10/3+4*np.log(1/2)
-                 delta_segma = rs[n]*rho_0[n]*g_x[n,t]
-                # deltasigma[n,t] = delta_segma  #(原有计算,面积单位为Mpc^2)
-                # 为了和观测对比，把单位转为Msun*h/pc^2,即把面积单位转为pc^2
-                 deltasigma[n,t] = delta_segma*10**(-12)
-                 sigma[n,t] = 2*rs[n]*rho_0[n]/3
-            else:
-                 f1 = np.arctan(np.sqrt((f0-1)/(f0+1)))
-                 f2 = np.log(f0/2)
-                 f4 = f0**2*np.sqrt(f0**2-1)
-                 f5 = (f0**2-1)**(3/2)
-                 g_x[n,t]= 8*f1/f4+4*f2*f0**(-2)-2/(f0**2-1)+4*f1/f5
-                 delta_segma = rs[n]*rho_0[n]*g_x[n,t]
-                # deltasigma[n,t] = delta_segma  #(原有计算,面积单位为Mpc^2)
-                # 为了和观测对比，把单位转为Msun*h/pc^2,即把面积单位转为pc^2
-                 deltasigma[n,t] = delta_segma*10**(-12)
-                 sigma[n,t] = 2*rs[n]*rho_0[n]*(1-2*f1/np.sqrt(f0**2-1))/(f0**2-1)
-    return(inm,Rp,r,rs,r_200,rho_R,sigma,deltasigma)
-#semula_tion(m_=True,x=True)
 ##下面把deltasigma的计算转为Rp的函数关系，以方便调用
-#def calcu_sigma(Rpc,m_,x):
-def calcu_sigmaz(Rpc,m_,x,z):
-    global omega_m
-    omega_m = 0.315
-    omegam = omega_m
-#a flat CDM model,omegak=0;omegalamd=0
-    global h_
-    h_ = 0.673
-    h = h_
-    global G_
-    G_ = 6.67*10**(-11)
-    G = G_
-  #  global ms_
-  #  ms_ = 1.989*10**(30)
-  #  ms = ms_  
-    global c_
-    c_ = 6
-    ##调试结果c=3.25~3.75之间比较合适
-    c = c_
-#下面开始计算
-    #对导入的数据做单位转化转为:太阳质量/h
-    m1 = h*m_*10**x
-    #m1 = m_*10**x
-    # LL = len(m1)
-    # R = np.linspace(0,100,1500)
-    L = len(Rpc)
-    Rps = np.zeros(L,dtype=np.float)
-    g_x = np.zeros(L,dtype=np.float)
-    deltaSigma = np.zeros(L,dtype=np.float)
-    Sigma = np.zeros(L,dtype=np.float)
-    # rs =  np.zeros(LL,dtype=np.float)
-    # r_200 =  np.zeros(LL,dtype=np.float)
-    # rho_0 = np.zeros(LL,dtype=np.float)
-    #单位修正因子
-    #Qc = 0.1412#对rouc的单位修正（此时对roum、rou0的也完成了修正）
-    #Q200 = 0.7
-    ##重新对单位修正因子订正如下：
-    Qc = 3.084*10**(-2)/(1.989*h**2)#对rouc的单位修正（此时对roum、rou0的也完成了修正）
-    Q200 = 1#对r200的单位修正（此时对rs也做了修正）
-    H = h*100
-    #修正
-    #E = np.sqrt((1+z)**3*omegam)
-    #H = h*100*E
-    #
-    rouc = (Qc*(3*H**2)/(8*np.pi*G))/(1/(1+z))**3
-    roum = 200*rouc*omegam
-    r_200 = Q200*(3*m1/(4*np.pi*200*rouc))**(1/3)
-    rs = r_200/c
-    rho_0 = m1/((np.log(1+c)-c/(1+c))*4*np.pi*rs**3)
-    for t in range(0,L):
-        Rps[t] = Rpc[t]
-        #引入中间函数
-        f0 = Rps[t]/rs#这是考虑把R参数化的情况
-        if Rps[t]<rs:
-           f1 = np.arctanh(np.sqrt((1-f0)/(1+f0)))
-           f2 = np.log(f0/2)
-           f4 = f0**2*np.sqrt(1-f0**2)
-           f5 = (f0**2-1)*np.sqrt(1-f0**2)
-           g_x[t] = 8*f1/f4+4*f2*f0**(-2)-2/(f0**2-1)+4*f1/f5
-           delta_segma = rs*rho_0*g_x[t]
-          # deltasigma[n,t] = delta_segma  #(原有计算,面积单位为Mpc^2)
-          # 为了和观测对比，把单位转为Msun*h/pc^2,即把面积单位转为pc^2
-           deltaSigma[t] = delta_segma*10**(-12)
-           Sigma[t] = (2*rs*rho_0/(f0**2-1))*(1-2*f1/(np.sqrt(1-f0**2)))
-        elif Rps[t]==rs:
-             g_x[t] = 10/3+4*np.log(1/2)
-             delta_segma = rs*rho_0*g_x[t]
-            # deltasigma[n,t] = delta_segma  #(原有计算,面积单位为Mpc^2)
-            # 为了和观测对比，把单位转为Msun*h/pc^2,即把面积单位转为pc^2
-             deltaSigma[t] = delta_segma*10**(-12)
-             Sigma[t] = 2*rs*rho_0/3
-        else:
-             f1 = np.arctan(np.sqrt((f0-1)/(f0+1)))
-             f2 = np.log(f0/2)
-             f4 = f0**2*np.sqrt(f0**2-1)
-             f5 = (f0**2-1)**(3/2)
-             g_x[t]= 8*f1/f4+4*f2*f0**(-2)-2/(f0**2-1)+4*f1/f5
-             delta_segma = rs*rho_0*g_x[t]
-            # deltasigma[n,t] = delta_segma  #(原有计算,面积单位为Mpc^2)
-            # 为了和观测对比，把单位转为Msun*h/pc^2,即把面积单位转为pc^2
-             deltaSigma[t] = delta_segma*10**(-12)
-             Sigma[t] = 2*rs*rho_0*(1-2*f1/np.sqrt(f0**2-1))/(f0**2-1)
-    return(Rpc,Sigma,deltaSigma)
-#calcu_sigmaz(Rpc=True,m_=True,x=True,z=True)
-#单独调用模块时需要对此句修改，引入直接的Rp和质量
-##
+#part1:#下面这一部分为共动坐标情况（z=0）
 def calcu_sigma(Rpc,m_,x):
     global omega_m
     omega_m = 0.315
@@ -244,12 +56,9 @@ def calcu_sigma(Rpc,m_,x):
     c_ = 6
     ##调试结果c=3.25~3.75之间比较合适
     c = c_
-#下面开始计算
+    #下面开始计算
     #对导入的数据做单位转化转为:太阳质量/h
     m1 = h*m_*10**x
-    #m1 = m_*10**x
-    # LL = len(m1)
-    # R = np.linspace(0,100,1500)
     L = len(Rpc)
     Rps = np.zeros(L,dtype=np.float)
     g_x = np.zeros(L,dtype=np.float)
@@ -263,16 +72,15 @@ def calcu_sigma(Rpc,m_,x):
     #Q200 = 0.7
     ##重新对单位修正因子订正如下：
     Qc = 3.084*10**(-2)/(1.989*h**2)#对rouc的单位修正（此时对roum、rou0的也完成了修正）
-    #Qc = 3.084*10**(-2)/(1.989*h**4)#对rouc的单位修正（此时对roum、rou0的也完成了修正）
     Q200 = 1#对r200的单位修正（此时对rs也做了修正）
     H = h*100
     #修正
     #E = np.sqrt((1+z)**3*omegam)
     #H = h*100*E
-    #
-    rouc = Qc*(3*H**2)/(8*np.pi*G)
-    roum = 200*rouc*omegam
-    r_200 = Q200*(3*m1/(4*np.pi*200*rouc))**(1/3)
+    ##修正可以选择两处，对于计算过程涉及的物理量修正，或者对于常数修正
+    rhoc = Qc*(3*H**2)/(8*np.pi*G)
+    rhom = 200*rhoc*omegam
+    r_200 = Q200*(3*m1/(4*np.pi*200*rhoc))**(1/3)
     rs = r_200/c
     rho_0 = m1/((np.log(1+c)-c/(1+c))*4*np.pi*rs**3)
     for t in range(0,L):
@@ -310,7 +118,88 @@ def calcu_sigma(Rpc,m_,x):
              Sigma[t] = 2*rs*rho_0*(1-2*f1/np.sqrt(f0**2-1))/(f0**2-1)
     return(Rpc,Sigma,deltaSigma)
 #calcu_sigma(Rpc=True,m_=True,x=True)   
-##
+#part2:#下面这部分为考虑红移的情况
+def calcu_sigmaz(Rpc,m_,x,z):
+    global omega_m
+    omega_m = 0.315
+    omegam = omega_m
+#a flat CDM model,omegak=0;omegalamd=0
+    global h_
+    h_ = 0.673
+    h = h_
+    global G_
+    G_ = 6.67*10**(-11)
+    G = G_
+    global ms_
+    ms_ = 1.989*10**(30)
+    ms = ms_  
+    global c_
+    c_ = 6
+    ##调试结果c=3.25~3.75之间比较合适
+    c = c_
+    #下面开始计算
+    #对导入的数据做单位转化转为:太阳质量/h
+    m1 = h*m_*10**x
+    L = len(Rpc)
+    Rps = np.zeros(L,dtype=np.float)
+    g_x = np.zeros(L,dtype=np.float)
+    deltaSigma = np.zeros(L,dtype=np.float)
+    Sigma = np.zeros(L,dtype=np.float)
+    # rs =  np.zeros(LL,dtype=np.float)
+    # r_200 =  np.zeros(LL,dtype=np.float)
+    # rho_0 = np.zeros(LL,dtype=np.float)
+    #单位修正因子
+    #Qc = 0.1412#对rouc的单位修正（此时对roum、rou0的也完成了修正）
+    #Q200 = 0.7
+    ##重新对单位修正因子订正如下：
+    Qc = 3.084*10**(-2)/(1.989*h**2)#对rouc的单位修正（此时对roum、rou0的也完成了修正）
+    Q200 = 1#对r200的单位修正（此时对rs也做了修正）
+    H = h*100
+    #修正
+    #E = np.sqrt((1+z)**3*omegam)
+    #H = h*100*E
+    ##修正可以选择两处，对于计算过程涉及的物理量修正，或者对于常数修正
+    rhoc = (Qc*(3*H**2)/(8*np.pi*G))/(1/(1+z))**3
+    rhom = 200*rhoc*omegam
+    r_200 = Q200*(3*m1/(4*np.pi*200*rhoc))**(1/3)
+    rs = r_200/c
+    rho_0 = m1/((np.log(1+c)-c/(1+c))*4*np.pi*rs**3)
+    for t in range(0,L):
+        Rps[t] = Rpc[t]
+        #引入中间函数
+        f0 = Rps[t]/rs#这是考虑把R参数化的情况
+        if Rps[t]<rs:
+           f1 = np.arctanh(np.sqrt((1-f0)/(1+f0)))
+           f2 = np.log(f0/2)
+           f4 = f0**2*np.sqrt(1-f0**2)
+           f5 = (f0**2-1)*np.sqrt(1-f0**2)
+           g_x[t] = 8*f1/f4+4*f2*f0**(-2)-2/(f0**2-1)+4*f1/f5
+           delta_segma = rs*rho_0*g_x[t]
+          # deltasigma[n,t] = delta_segma  #(原有计算,面积单位为Mpc^2)
+          # 为了和观测对比，把单位转为Msun*h/pc^2,即把面积单位转为pc^2
+           deltaSigma[t] = delta_segma*10**(-12)
+           Sigma[t] = (2*rs*rho_0/(f0**2-1))*(1-2*f1/(np.sqrt(1-f0**2)))
+        elif Rps[t]==rs:
+             g_x[t] = 10/3+4*np.log(1/2)
+             delta_segma = rs*rho_0*g_x[t]
+            # deltasigma[n,t] = delta_segma  #(原有计算,面积单位为Mpc^2)
+            # 为了和观测对比，把单位转为Msun*h/pc^2,即把面积单位转为pc^2
+             deltaSigma[t] = delta_segma*10**(-12)
+             Sigma[t] = 2*rs*rho_0/3
+        else:
+             f1 = np.arctan(np.sqrt((f0-1)/(f0+1)))
+             f2 = np.log(f0/2)
+             f4 = f0**2*np.sqrt(f0**2-1)
+             f5 = (f0**2-1)**(3/2)
+             g_x[t]= 8*f1/f4+4*f2*f0**(-2)-2/(f0**2-1)+4*f1/f5
+             delta_segma = rs*rho_0*g_x[t]
+            # deltasigma[n,t] = delta_segma  #(原有计算,面积单位为Mpc^2)
+            # 为了和观测对比，把单位转为Msun*h/pc^2,即把面积单位转为pc^2
+             deltaSigma[t] = delta_segma*10**(-12)
+             Sigma[t] = 2*rs*rho_0*(1-2*f1/np.sqrt(f0**2-1))/(f0**2-1)
+    return(Rpc,Sigma,deltaSigma,rs)
+#calcu_sigmaz(Rpc=True,m_=True,x=True,z=True)
+#单独调用模块时需要对此句修改，引入直接的Rp和质量
 def fig_f(inm,Rp,r,rs,r_200,rho_R,sigma,deltasigma):
 #def fig_f(ff):
 #inm,Rs,r,rs,r_200,rho_R,sigma,deltasigma=semula_tion(m_,x)
@@ -438,22 +327,23 @@ def fit_datar(y):
     #下面做两组数据的方差比较,注意不能对观测数据进行插值
     #比较方法，找出观测的sigma数值对应的Rp,再根据模型计算此时的模型数值Sigma（该步以完成）    
     ds_simr = np.zeros((lmw,lml,b),dtype=np.float)
+    rr = np.zeros((lmw,lml),dtype=np.float)
     for k in range(0,lmw):
         for t in range(0,lml):
             m_ = m[k,t]
             x = m_dex[k]
             #Rpc = rp
-            #Rpc,Sigma,deltaSigma = calcu_sigma(Rpc,m_,x)
+            #Rpc,Sigma,deltaSigma = calcu_sigma(Rpc,m_,x)    
             #ds_simr[k,t,:] = deltaSigma
             #对比文献，加入尺度因子修正如下,把物理的距离转为共动的距离
-            Rpc = rp
-            z_r = 0.105
             #计算模型在对应的投射距离上的预测信号取值
+            Rpc = rp
+            Rpc,Sigma,deltaSigma,rs = calcu_sigmaz(Rpc,m_,x,z_r)
             #对预测信号做相应的变化，把共动的转为物理的
-            Rpc,Sigma,deltaSigma = calcu_sigmaz(Rpc,m_,x,z_r)
-            ds_simr[k,t,:] = deltaSigma    
+            ds_simr[k,t,:] = deltaSigma
+            rr[k,t] = rs
     yy = np.shape(ds_simr)
-    print(yy)#输出查看ds_sim的维度，即模型预测下的透镜信号    
+    #print('rr=',rr)#输出查看ds_sim的维度，即模型预测下的透镜信号    
     #比较观测的sigma和预测的Sigma,比较结果用fitr和fitb记录比较结果
     fitr = np.zeros((lmw,2),dtype=np.int)
     delta_r = np.zeros((lmw,lml),dtype=np.float)
@@ -496,14 +386,23 @@ def fit_datar(y):
     best_mr = bestr
     dexr1 = m_dex[bestfr[0]]
     #下面两句是为与文献对比做的修正
-    dexr = m_dex[bestfr[0]]+np.log10(bestr*h)
+    dexr = m_dex[bestfr[0]]+np.log10(bestr*h) 
+    #作图对比最佳情况
+    plt.figure()
+    k = bestfr[0]
+    t = bestfr[1]
+    fig_fff2(rp,ds_simr,k,t)
+    plt.title('Red')
+    #plt.savefig('fit_r.png',dpi=600)
+    plt.show()
+    print('x^2=',min(deltar))
     print('mr=',best_mr) #此句质量计算正常
     print('positionr=',bestfr)
     print('dexr=',dexr1)
     print('co_dexr=',dexr)  
     print('corr_mr=',10**dexr)
-    return rp,best_mr,dexr1,a,b,yy,dexr,a_r 
-fit_datar(y=True)
+    return rp,best_mr,dexr1,a,b,yy,dexr,a_r,delta_r 
+#fit_datar(y=True)
 def fit_datab(y):
     h = 0.673
     #先找出观测值对应的rp
@@ -518,8 +417,8 @@ def fit_datab(y):
     a_b = 1/(1+z_b)
     ##此时对于预测的R也要做修正
     rp = np.array([rsa[0,k] for k in range(0,len(rsa[0,:])) if rsa[0,k]*h<=2]) 
-    #rp = [rsa[0,k] for k in range(0,len(rsa[0,:])) if rsa[0,k]*h<=2]
-    #rp = rsa[0,:]
+   # rp = [rsa[0,k] for k in range(0,len(rsa[0,:])) if rsa[0,k]*h<=2]
+   # rp = rsa[0,:]
     #该句直接对数组筛选，计算2Mpc以内（保证NFW模型适用的情况下）信号
     print(rp)
     b = len(rp)
@@ -536,22 +435,23 @@ def fit_datab(y):
     #下面做两组数据的方差比较,注意不能对观测数据进行插值
     #比较方法，找出观测的sigma数值对应的Rp,再根据模型计算此时的模型数值Sigma（该步以完成）    
     ds_simb = np.zeros((lmw,lml,b),dtype=np.float)
+    rb = np.zeros((lmw,lml),dtype=np.float)
     for k in range(0,lmw):
         for t in range(0,lml):
             m_ = m[k,t]
             x = m_dex[k]
             #Rpc = rp
-            #Rpc,Sigma,deltaSigma = calcu_sigma(Rpc,m_,x)
+            #Rpc,Sigma,deltaSigma = calcu_sigma(Rpc,m_,x,z_b)
             #ds_simb[k,t,:] = deltaSigma
             #对比文献，把物理距离转为共动距离
             Rpc = rp
-            z_b = 0.124
             #计算模型在对应的投射距离上的预测信号取值
+            Rpc,Sigma,deltaSigma,rs = calcu_sigmaz(Rpc,m_,x,z_b)
             #预测信号也做修正
-            Rpc,Sigma,deltaSigma = calcu_sigmaz(Rpc,m_,x,z_b)
             ds_simb[k,t,:] = deltaSigma
+            rb[k,t] = rs
     yy = np.shape(ds_simb)
-    print(yy)#输出查看ds_sim的维度，即模型预测下的透镜信号    
+    #print('rb=',rb)#输出查看ds_sim的维度，即模型预测下的透镜信号    
     #比较观测的sigma和预测的Sigma,比较结果用fitr和fitb记录比较结果
     fitb = np.zeros((lmw,2),dtype=np.int)
     delta_b = np.zeros((lmw,lml),dtype=np.float)
@@ -594,14 +494,46 @@ def fit_datab(y):
     best_mb = bestb
     dexb1 = m_dex[bestfb[0]]
     #下面是与文献对比做的修正
-    dexb = m_dex[bestfb[0]]+np.log10(bestb*h)
+    dexb = m_dex[bestfb[0]]+np.log10(bestb*h)    
+    #作图对比最佳情况
+    plt.figure()
+    k = bestfb[0]
+    t = bestfb[1]
+    fig_fff2(rp,ds_simb,k,t)
+    plt.title('Blue')
+    #plt.savefig('fit_b.png',dpi=600)
+    plt.show()
+    print('x^2=',min(deltab))    
     print('mb=',best_mb) #此句质量计算正常
     print('positionb=',bestfb)
     print('dexb=',dexb1)
     print('co_dexb=',dexb) 
     print('corr_mb=',10**dexb)
-    return rp,best_mb,dexb1,a,b,yy,dexb,a_b 
-fit_datab(y=True)
+    return rp,best_mb,dexb1,a,b,yy,dexb,a_b,delta_b 
+#fit_datab(y=True)
+#下面做图比较最佳预测值与观测的对比情况
+def fig_(T):
+    m,m_dex,lmw,lml = dolad_data(m=True,hz=True)
+    rp,best_mr,dexr1,a,b,yy,dexr,a_r,delta_r = fit_datar(y=True)
+    rp,best_mb,dexb1,a,b,yy,dexb,a_b,delta_b = fit_datab(y=True)
+    plt.subplot(121)
+    plt.plot(m_dex,np.log10(delta_r))
+    plt.title('R-galaxy')
+    plt.xlabel(r'$log(\frac{M_h}{M_\odot})$')
+    plt.ylabel(r'$log(\chi^2)$')
+    plt.grid()
+    plt.subplot(122)
+    plt.plot(m_dex,np.log10(delta_b))
+    plt.xlabel(r'$log(\frac{M_h}{M_\odot})$')
+    plt.ylabel(r'$log(\chi^2)$')
+    plt.title('B-galaxy')
+    plt.grid()
+    plt.tight_layout()
+    plt.show()  
+    print('mr=',dexr)
+    print('mb=',dexb)
+    return dexr,dexb
+fig_(T=True)
 '''
 if __name__ == "__main__":
     dolad_data(m=True,hz=True)

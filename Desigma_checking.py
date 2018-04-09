@@ -35,17 +35,18 @@ def constant_f(t1,t2):
     global G_
     G_ = 6.67*10**(-11)
     G = G_
-    '''
     global ms_
     ms_ = 1.989*10**(30)
     ms = ms_  
-    '''
     global c_
-    c_ = 3
+    c_ = 3.5
     c = c_
     #单位修正因子
-    Qc = 0.1412#对rouc的单位修正（此时对roum、rou0的也完成了修正）
-    Q200 = 0.7#对r200的单位修正（此时对rs也做了修正）
+    #Qc = 0.1412#对rouc的单位修正（此时对roum、rou0的也完成了修正）
+    #Q200 = 0.7
+    ##重新对单位修正因子订正如下：
+    Qc = 3.084*10**(-2)/(1.989*h**2)#对rouc的单位修正（此时对roum、rou0的也完成了修正）
+    Q200 = 1#对r200的单位修正（此时对rs也做了修正）
     return(Q200,Qc,c,G,h,omegam,hz,m_)
 constant_f(t1=True,t2=True)
 '''

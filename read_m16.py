@@ -3,20 +3,15 @@ import os.path
 import numpy as np
 import matplotlib.pyplot as plt
 """Read the Mandelbaum+2016 Weak Lensing data."""
-
 m16path = 'D:/mask/seniorproject_quenching-master/data/M16/'
-
 def read_m16_ds(use_red=True, mass_bin='10.0_10.4'):
     """Read DeltaSigma data from Mandelbaum+16.
-
     Parameters
     ---
     use_red: bool
         read data for the red or blue galaxies.
-
     mass_bin: str
         name of the stellar mass.
-
     Returns
     ---
     output: list
@@ -78,7 +73,7 @@ def read_m16_mass(use_red):
     out = [lgms, lgmh, errlgmh]
     return(out)
 
-def test_read_m16_ds(mass_bin="11.0_15.0"):
+def test_read_m16_ds(mass_bin="10.7_11.0"):
     """Test the M16 Reader."""
     ##加入数组，记录rp,ds,ds_error的变化和取值。
     rp, ds, ds_err = read_m16_ds(use_red=True, mass_bin=mass_bin)
@@ -99,6 +94,9 @@ def test_read_m16_ds(mass_bin="11.0_15.0"):
     plt.xscale('log')
     plt.yscale('log')
     plt.grid()
+    #print('rp=',rp)
+    #print('ds=',dssa)
+    #print('error=',ds_errsa)
     return rsa,dssa,ds_errsa
     #-sa表示设置数组
     #plt.show()
@@ -113,6 +111,6 @@ def test_read_m16_mass():
     plt.grid()
     #plt.show()
 if __name__ == "__main__":
-    test_read_m16_ds(mass_bin='11.0_15.0')
+    test_read_m16_ds(mass_bin='10.7_11.0')
     # test_read_m16_mass()
     pass
