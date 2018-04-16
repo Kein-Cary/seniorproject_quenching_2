@@ -26,7 +26,7 @@ def constant_f(t1,t2):
     hz[0] = 0
     #
     global omega_m
-    omega_m = 0.315
+    omega_m = 0.300
     omegam = omega_m
 #a flat CDM model,omegak=0;omegalamd=0
     global h_

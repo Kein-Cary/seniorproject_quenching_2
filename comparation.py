@@ -5,11 +5,6 @@ import sys
 sys.path.insert(0,'D:/Python1/pydocument/seniorproject_quenching2/practice')
 ##导入自己编写的脚本，需要加入这两句，一句声明符号应用，然后声明需要引入文-
 from read_m16 import test_read_m16_ds
-# from Desigma_checking import constant_f
-# from log_jifen import rou_R
-# from log_jifen import rou2
-# from dolad_data import dolad_data
-# from dolad_data import semula_tion
 from dolad_data import fit_datar
 from dolad_data import fit_datab
 #from dolad_data import calcu_sigma
@@ -31,8 +26,8 @@ def extend_m(v):
     #mb = best_mb
     mr = 1
     mb = 1
-    print('mr=',mr)
-    print('mb=',mb)
+    #print('mr=',mr)
+    #print('mb=',mb)
     d_exr = np.linspace(dexr1-2,dexr1+2,400)
     d_exb = np.linspace(dexb1-2,dexb1+2,400)
     #d_exr = dexr
@@ -67,14 +62,15 @@ def c_fit_datar(x0r):
         #c_Rp,c_Sigmar,c_deltaSigmar = calcu_sigma(cRp,m,xr)   
         #修正
         cRp = rp
-        z_r = 0.105
+        #z_r = 0.105
+        z_r = 0.230
         #计算模型在对应的投射距离上的预测信号取值        
         #c_表示该变量做继续比较量
         #修正
         c_Rp,c_Sigmar,c_deltaSigmar = calcu_sigmaz(cRp,m,xr,z_r)
         dssimr[t,:] = c_deltaSigmar
     size_ds1 = np.shape(dssimr)   
-    print('size_r=',size_ds1)
+    #print('size_r=',size_ds1)
     delta_r = np.zeros(ldr,dtype=np.float)
     rsa,dssa,ds_errsa = test_read_m16_ds()
     # for k in range(0,lmr):
@@ -106,7 +102,7 @@ def c_fit_datar(x0r):
     print('x^2=',deltar)
     print('mr=',best_mr)
     print('dexr=',bestfr)
-    return delta_r,rp,ldr
+    return delta_r,rp,ldr,dssa,ds_errsa
 #c_fit_datar(mr=True,mb=True,d_exr=True,d_exb=True)
 #c_fit_datar(x0r=True)
 ##
@@ -128,13 +124,14 @@ def c_fit_datab(x0b):
         #dssimb[t,:] = c_deltaSigmab
         #修正
         cRp = rp  
-        z_b = 0.124        
+        #z_b = 0.124      
+        z_b = 0.246
         #c_表示该变量做继续比较量
         #修正
         c_Rp,c_Sigmab,c_deltaSigmab = calcu_sigmaz(cRp,m,xb,z_b)
         dssimb[t,:] = c_deltaSigmab 
     size_ds2 = np.shape(dssimb)   
-    print('size_b=',size_ds2)
+    #print('size_b=',size_ds2)
     delta_b = np.zeros(ldb,dtype=np.float)
     rsa,dssa,ds_errsa = test_read_m16_ds()
     # for k in range(0,lmb):
@@ -166,14 +163,14 @@ def c_fit_datab(x0b):
     print('x^2=',deltab)
     print('mb=',best_mb)
     print('dexb=',bestfb)
-    return delta_b,rp,ldb
+    return delta_b,rp,ldb,dssa,ds_errsa
 #c_fit_datab(mr=True,mb=True,d_exr=True,d_exb=True)
 #c_fit_datab(x0b=True)
 #下面做图比较最佳预测值与观测的对比情况
 def fig_(T):
     rp,mr,mb,d_exr,d_exb,b,a_r,a_b = va_da(p=True)
-    delta_r,ldr,rp = c_fit_datar(x0r=True)
-    delta_b,ldb,rp = c_fit_datab(x0b=True)
+    delta_r,ldr,rp,dssa,ds_errsa = c_fit_datar(x0r=True)
+    delta_b,ldb,rp,dssa,ds_errsa = c_fit_datab(x0b=True)
     plt.subplot(121)
     plt.plot(d_exr,np.log10(delta_r),'r-')
     plt.title('R-galaxy')
@@ -191,4 +188,28 @@ def fig_(T):
     #plt.savefig('x^2.png',dpi=600)
     plt.show()
     print('consist=',min(delta_r)/min(delta_b))   
+    ##下面把给定的质量拟合区间结合x^2分布，给出质量选取的概率分布函数：
+    pr = np.ones(len(d_exr),dtype=np.float)#用于存放red拟合的X^2的概率分布函数
+    pb = np.ones(len(d_exb),dtype=np.float)#用于存放red拟合的X^2的概率分布函数 
+    #把要求分布的部分的观测数据取出来
+    #dssar = dssa[0,0:len(rp)]
+    #dssab = dssa[1,0:len(rp)]
+    ds_errsar = ds_errsa[0,0:b]
+    ds_errsab = ds_errsa[1,0:b]
+    for k in range(0,len(d_exr)):
+        ss = 1
+        for t in range(0,b):
+            ss = ss*(np.exp(-1*delta_r[k]/2)/(np.sqrt(2*np.pi)*ds_errsar[t]))
+        pr[k] = ss
+    for k in range(0,len(d_exb)):
+        ss = 1
+        for t in range(0,b):
+            ss = ss*(np.exp(-1*delta_b[k]/2)/(np.sqrt(2*np.pi)*ds_errsab[t]))
+        pb[k] = ss
+    plt.figure()
+    h=0.673
+    plt.plot(d_exb+np.log10(h),pb,'b-')
+    plt.plot(d_exr+np.log10(h),pr,'r-')
+    plt.show()
+    return
 fig_(T=True)

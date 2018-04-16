@@ -33,7 +33,7 @@ def rou_R(R):
         #上句表示添加红移后的修正（z=3.5）
         #rouc = Qc*(3*H**2)/(8*np.pi*G)
         roum = 200*rouc*omegam
-        r200[k] = Q200*(3*m[k]/(4*np.pi*200*rouc))**(1/3)
+        r200[k] = Q200*(3*m[k]*omegam/(4*np.pi*roum))**(1/3)
         rs[k] = r200[k]/c
         rou0[k] = m[k]/((np.log(1+c)-c/(1+c))*4*np.pi*rs[k]**3)
         for t in range(0,lr):

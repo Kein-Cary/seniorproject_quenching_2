@@ -21,9 +21,10 @@ def dolad_data(m,hz):
     #上述两句表示文件调用并打开数据
     m = np.loadtxt(fname,delimiter=',',dtype=np.float,unpack=True)    
     print('m=',m)
-    fname = os.path.join(_mh_path,'data_z.txt')
+    fname = os.path.join(_mh_path,'z_eff.txt')
     hz = np.loadtxt(fname,delimiter=',',dtype=np.float,unpack=True)
-    # print('hz=',hz)
+    #print('hz=',hz)
+    #该处读入的红移为实际的红移数据
     #plt.plot(m[0,:],m[1,:],label='Doload-successfully')
     #plt.legend()
     #plt.show()
@@ -130,9 +131,9 @@ def calcu_sigmaz(Rpc,m_,x,z):
     global G_
     G_ = 6.67*10**(-11)
     G = G_
-    global ms_
-    ms_ = 1.989*10**(30)
-    ms = ms_  
+    #global ms_
+    #ms_ = 1.989*10**(30)
+    #ms = ms_  
     global c_
     c_ = 6
     ##调试结果c=3.25~3.75之间比较合适
@@ -305,25 +306,17 @@ def fit_datar(y):
     a = np.shape(dssa)
     print('size a=',a)
     ##注意到观测数值选取的是物理坐标，需要靠里尺度银子修正，修正如下
-    z_r = 0.105
+    z_r = 0.230
+    #z_r = 0.105
     a_r = 1/(1+z_r)
     ##此时对于预测的R也要做修正
     rp = np.array([rsa[0,k] for k in range(0,len(rsa[0,:])) if rsa[0,k]*h<=2])
-   # rp = [rsa[0,k] for k in range(0,len(rsa[0,:])) if rsa[0,k]*h<=2]
-   # rp = rsa[0,:]
+    #rp = np.array([rsa[0,k] for k in range(0,len(rsa[0,:])) if rsa[0,k]*h<=5]) 
+    #rp = rsa[0,:]
     #该句直接对数组筛选，计算2Mpc以内（保证NFW模型适用的情况下）信号
     print(rp)
     b = len(rp)
     m,m_dex,lmw,lml = dolad_data(m=True,hz=True)
-    '''
-    for k in range(0,lmw):
-        m_ = m[k,:]
-        x = m_dex[k]
-      # return(semula_tion(m_,x))
-      # semula_tion(m_,x) #单独运行该句需要把画图的模块并入semula_tion模块
-        inm,Rp,r,rs,r_200,rho_R,sigma,deltasigma=semula_tion(m_,x)
-        fig_f(inm,Rp,r,rs,r_200,rho_R,sigma,deltasigma)
-    '''
     #下面做两组数据的方差比较,注意不能对观测数据进行插值
     #比较方法，找出观测的sigma数值对应的Rp,再根据模型计算此时的模型数值Sigma（该步以完成）    
     ds_simr = np.zeros((lmw,lml,b),dtype=np.float)
@@ -363,16 +356,10 @@ def fit_datar(y):
         fitr[k,1] = xa
     print(fitr)
     #下面做图比较几个最佳预测值与观测的对比情况
-    '''
     Rpc = rp
-    plt.subplot(121)
     fig_ff(Rpc,ds_simr,lmw,fitr)
     plt.title('R-galaxy')
-    plt.subplot(122)
-    plt.plot(m_dex,np.log10(delta_r))
-    plt.title('R-galaxy')
     plt.show() 
-    '''
     #比较提取出的五个最小值的最小值为最后结果
     deltar = np.zeros(lmw,dtype=np.float)
     for k in range(0,lmw):
@@ -413,7 +400,8 @@ def fit_datab(y):
     a = np.shape(dssa)
     print('size a=',a)
     ##注意到观测数值选取的是物理坐标，需要靠里尺度银子修正，修正如下
-    z_b = 0.124
+    z_b = 0.246
+    #z_b = 0.124
     a_b = 1/(1+z_b)
     ##此时对于预测的R也要做修正
     rp = np.array([rsa[0,k] for k in range(0,len(rsa[0,:])) if rsa[0,k]*h<=2]) 
@@ -423,15 +411,6 @@ def fit_datab(y):
     print(rp)
     b = len(rp)
     m,m_dex,lmw,lml = dolad_data(m=True,hz=True)
-    '''
-    for k in range(0,lmw):
-        m_ = m[k,:]
-        x = m_dex[k]
-      # return(semula_tion(m_,x))
-      # semula_tion(m_,x) #单独运行该句需要把画图的模块并入semula_tion模块
-        inm,Rp,r,rs,r_200,rho_R,sigma,deltasigma=semula_tion(m_,x)
-        fig_f(inm,Rp,r,rs,r_200,rho_R,sigma,deltasigma)
-    '''
     #下面做两组数据的方差比较,注意不能对观测数据进行插值
     #比较方法，找出观测的sigma数值对应的Rp,再根据模型计算此时的模型数值Sigma（该步以完成）    
     ds_simb = np.zeros((lmw,lml,b),dtype=np.float)
@@ -471,16 +450,10 @@ def fit_datab(y):
         fitb[k,1] = xb
     print(fitb)
     #下面做图比较几个最佳预测值与观测的对比情况
-    '''
     Rpc = rp
-    plt.subplot(121)
     fig_ff(Rpc,ds_simb,lmw,fitb)
     plt.title('B-galaxy')
-    plt.subplot(122)
-    plt.plot(m_dex,np.log10(delta_b))
-    plt.title('B-galaxy')
     plt.show() 
-    '''
     #比较提取出的五个最小值的最小值为最后结果
     deltab = np.zeros(lmw,dtype=np.float)
     for k in range(0,lmw):

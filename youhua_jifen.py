@@ -5,11 +5,6 @@ import sys
 sys.path.insert(0,'D:/Python1/pydocument/seniorproject_quenching2/practice')
 ##导入自己编写的脚本，需要加入这两句，一句声明符号应用，然后声明需要引入文-
 from read_m16 import test_read_m16_ds
-# from Desigma_checking import constant_f
-# from log_jifen import rou_R
-# from log_jifen import rou2
-# from dolad_data import dolad_data
-# from dolad_data import semula_tion
 from dolad_data import fit_datar
 from dolad_data import fit_datab
 from dolad_data import calcu_sigmaz
@@ -63,7 +58,8 @@ def c_fit_datar(x0r):
         #c_Rp,c_Sigmar,c_deltaSigmar = calcu_sigma(cRp,m,xr)   
         #修正
         cRp = rp
-        z_r = 0.105
+        z_r = 0.230
+        #z_r = 0.105
         #计算模型在对应的投射距离上的预测信号取值        
         #c_表示该变量做继续比较量
         #修正
@@ -116,7 +112,8 @@ def c_fit_datab(x0b):
         #dssimb[t,:] = c_deltaSigmab
         #修正
         cRp = rp  
-        z_b = 0.124        
+        z_b = 0.246 
+        #z_b = 0.124
         #c_表示该变量做继续比较量
         #修正
         c_Rp,c_Sigmab,c_deltaSigmab = calcu_sigmaz(cRp,m,xb,z_b)

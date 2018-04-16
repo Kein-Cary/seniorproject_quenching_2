@@ -3,9 +3,6 @@ import sys
 sys.path.insert(0,'D:/Python1/pydocument/seniorproject_quenching2/practice')
 ##导入自己编写的脚本，需要加入这两句，一句声明符号应用，然后声明需要引入文-
 #件的路径具体到文件夹
-#from read_m16 import read_m16_ds
-#from read_m16 import read_m16_mass
-#from read_m16 import test_read_m16_mass
 from read_m16 import test_read_m16_ds
 #导入的质量区间为11~15dex-Msolar
 import os.path
@@ -54,7 +51,7 @@ def semula_tion(m_,x):
   #  ms_ = 1.989*10**(30)
   #  ms = ms_  
     global c_
-    c_ = 3.5
+    c_ = 6
     ##调试结果c=3.25~3.75之间比较合适
     c = c_
 #下面开始计算
@@ -416,7 +413,8 @@ def fit_datar(y):
     a = np.shape(dssa)
     print('size a=',a)
     ##注意到观测数值选取的是物理坐标，需要靠里尺度银子修正，修正如下
-    z_r = 0.105
+    z_r = 0.230
+    #z_r = 0.105
     a_r = 1/(1+z_r)
     ##此时对于预测的R也要做修正
     rp = np.array([rsa[0,k] for k in range(0,len(rsa[0,:])) if rsa[0,k]*h<=2])
@@ -447,7 +445,6 @@ def fit_datar(y):
             #ds_simr[k,t,:] = deltaSigma
             #对比文献，加入尺度因子修正如下,把物理的距离转为共动的距离
             Rpc = rp
-            z_r = 0.105
             #计算模型在对应的投射距离上的预测信号取值
             #对预测信号做相应的变化，把共动的转为物理的
             Rpc,Sigma,deltaSigma = calcu_sigmaz(Rpc,m_,x,z_r)
@@ -503,7 +500,7 @@ def fit_datar(y):
     print('co_dexr=',dexr)  
     print('corr_mr=',10**dexr)
     return rp,best_mr,dexr1,a,b,yy,dexr,a_r 
-fit_datar(y=True)
+#fit_datar(y=True)
 def fit_datab(y):
     h = 0.673
     #先找出观测值对应的rp
@@ -514,7 +511,8 @@ def fit_datab(y):
     a = np.shape(dssa)
     print('size a=',a)
     ##注意到观测数值选取的是物理坐标，需要靠里尺度银子修正，修正如下
-    z_b = 0.124
+    z_b = 0.246
+    #z_b = 0.124
     a_b = 1/(1+z_b)
     ##此时对于预测的R也要做修正
     rp = np.array([rsa[0,k] for k in range(0,len(rsa[0,:])) if rsa[0,k]*h<=2]) 
@@ -545,7 +543,6 @@ def fit_datab(y):
             #ds_simb[k,t,:] = deltaSigma
             #对比文献，把物理距离转为共动距离
             Rpc = rp
-            z_b = 0.124
             #计算模型在对应的投射距离上的预测信号取值
             #预测信号也做修正
             Rpc,Sigma,deltaSigma = calcu_sigmaz(Rpc,m_,x,z_b)
@@ -601,7 +598,7 @@ def fit_datab(y):
     print('co_dexb=',dexb) 
     print('corr_mb=',10**dexb)
     return rp,best_mb,dexb1,a,b,yy,dexb,a_b 
-fit_datab(y=True)
+#fit_datab(y=True)
 '''
 if __name__ == "__main__":
     dolad_data(m=True,hz=True)

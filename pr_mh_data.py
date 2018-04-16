@@ -3,17 +3,20 @@ import sys
 sys.path.insert(0,'D:/Python1/pydocument/seniorproject_quenching2/practice')
 ##导入自己编写的脚本，需要加入这两句，一句声明符号应用，然后声明需要引入文-
 #件的路径具体到文件夹
-from read_m16 import test_read_m16_ds
+from read_m16_1 import test_read_m16_ds_1
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
+#import pandas as pd
 from scipy.stats import t as st
 import seaborn as sns
 #画误差棒函数须引入scipy库
 #导入的质量区间为11~15dex-Msolar
 def input_mass_bin(v):
-    N = 16
-    m = np.linspace(11,14,N)
+    N = 4
+    #m = np.linspace(11,15,21)
+    m = np.array([np.linspace(11,13,21),np.linspace(12,14,21),\
+                  np.linspace(12,14,21),np.linspace(11,14,31)])
+    #针对不同质量区间设置拟合质量范围
     return m,N
 #input_mass_bin(v=True)
 def calcu_sigmaz(Rpc,m_,x,z):
@@ -99,8 +102,8 @@ def calcu_sigmaz(Rpc,m_,x,z):
     return(Rpc,Sigma,deltaSigma,rs)
 #calcu_sigmaz(Rpc=True,m_=True,x=True,z=True)
 ##定义一个五个质量最佳预测和观测的对比图象
-def fig_ff(Rpc,ds_sim,lmw,r):
-    test_read_m16_ds()
+def fig_0(Rpc,ds_sim,lmw,r,mass_bin):
+    test_read_m16_ds_1(mass_bin=mass_bin)
     for k in range(0,lmw):
         pa = r[k,1]
         plt.plot(Rpc[:],ds_sim[k,pa,:],'-*')
@@ -116,12 +119,12 @@ def fig_ff(Rpc,ds_sim,lmw,r):
     plt.xlabel(r'$R-Mpc/h$')
     plt.ylabel(r'$\Delta\Sigma-hM_\odot/{pc^2}$')   
     return()
-#fig_ff(Rpc=True,ds_sim=True,lmw=True,r=True)
-#fig_ff(f=True)
+#fig_0(Rpc=True,ds_sim=True,lmw=True,r=True)
+#fig_0(f=True)
 ##定义一个质量最佳预测和观测的对比图象
-def fig_fff1(Rpc,ds_sim,k):
-    test_read_m16_ds()
-    plt.plot(Rpc[:],ds_sim[k,:],'r--')
+def fig_0f1(Rpc,ds_sim,k,mass_bin):
+    test_read_m16_ds_1(mass_bin=mass_bin)
+    plt.plot(Rpc[:],ds_sim[k,:],'--')
     nn = ds_sim[k,:].size#求样本大小
     x_mean = np.mean(ds_sim[k,:])#求算术平均值
     x_std = np.std(ds_sim[k,:])#求标准偏差
@@ -134,10 +137,10 @@ def fig_fff1(Rpc,ds_sim,k):
     plt.xlabel(r'$R-Mpc/h$')
     plt.ylabel(r'$\Delta\Sigma-hM_\odot/{pc^2}$')
     return()
-#fig_fff1(f=True)
-def fig_fff2(Rpc,ds_sim,k,t):
-    test_read_m16_ds()
-    plt.plot(Rpc[:],ds_sim[k,t,:],'-',)
+#fig_0f1(f=True)
+def fig_0f2(Rpc,ds_sim,k,t,mass_bin):
+    test_read_m16_ds_1(mass_bin=mass_bin)
+    plt.plot(Rpc[:],ds_sim[k,t,:],'--',)
     nn = ds_sim[k,t,:].size#求样本大小
     x_mean = np.mean(ds_sim[k,t,:])#求算术平均值
     x_std = np.std(ds_sim[k,t,:])#求标准偏差
@@ -150,37 +153,38 @@ def fig_fff2(Rpc,ds_sim,k,t):
     plt.xlabel(r'$R-Mpc/h$')
     plt.ylabel(r'$\Delta\Sigma-hM_\odot/{pc^2}$')   
     return()
-#fig_fff2(f=True)
-def fit_datar(y):
-#def fie_datar(mass_bin):
+#fig_0f2(f=True)
+#def fit_datar(y):
+def fit_datar_1(mass_bin,T):
     h = 0.7
     #先找出观测值对应的rp
-    rsa,dssa,ds_errsa = test_read_m16_ds()
-    #rsa,dssa,ds_errsa = test_read_m16_ds(mass_bin=mass_bin)
+    #rsa,dssa,ds_errsa = test_read_m16_ds_1()
+    rsa,dssa,ds_errsa = test_read_m16_ds_1(mass_bin=mass_bin)
     # print('ds=',dssa)
     # print('ds_err=',ds_errsa)
     #print('rp=',rsa)  
     a = np.shape(dssa)
-    print('size a=',a)
+    #print('size a=',a)
     ##注意到观测数值选取的是物理坐标，需要靠里尺度银子修正，修正如下
     z_r = 0.1
     #z_r = 0.105
     a_r = 1/(1+z_r)
     ##此时对于预测的R也要做修正
     rp = np.array([rsa[0,k] for k in range(0,len(rsa[0,:])) if rsa[0,k]*h<=5])
-   # rp = [rsa[0,k] for k in range(0,len(rsa[0,:])) if rsa[0,k]*h<=2]
-   # rp = rsa[0,:]
+    #rp = [rsa[0,k] for k in range(0,len(rsa[0,:])) if rsa[0,k]*h<=2]
     #该句直接对数组筛选，计算2Mpc以内（保证NFW模型适用的情况下）信号
-    print(rp)
     b = len(rp)
     m,N = input_mass_bin(v=True)
+    mr = m[T]
+    print('mr=',mr)
+    lm_bin = len(mr)   
     #下面做两组数据的方差比较,注意不能对观测数据进行插值
     #比较方法，找出观测的sigma数值对应的Rp,再根据模型计算此时的模型数值Sigma（该步以完成）    
-    ds_simr = np.zeros((N,b),dtype=np.float)
-    rr = np.zeros(N,dtype=np.float)
-    for t in range(0,N):
+    ds_simr = np.zeros((lm_bin,b),dtype=np.float)
+    rr = np.zeros(lm_bin,dtype=np.float)
+    for t in range(0,lm_bin):
         m_ = 1
-        x = m[t]
+        x = mr[t]
         #Rpc = rp
         #Rpc,Sigma,deltaSigma = calcu_sigma(Rpc,m_,x)    
         #ds_simr[k,t,:] = deltaSigma
@@ -190,19 +194,19 @@ def fit_datar(y):
         Rpc,Sigma,deltaSigma,rs = calcu_sigmaz(Rpc,m_,x,z_r)
         #对预测信号做相应的变化，把共动的转为物理的
         ds_simr[t,:] = deltaSigma
-        rr[t] = rs
-        fig_fff1(rp,ds_simr,t)
-    plt.title('Red')
+        #下面部分作图对比
+        #rr[t] = rs
+        #fig_0f1(rp,ds_simr,t,mass_bin)
+    #plt.title('Red')
     #plt.legend(m[:],bbox_to_anchor=(1,1))
-    plt.legend(m[:])   
+    #plt.legend(m[:])   
     #plt.savefig('Fit-red2.png',dpi=600)
     #plt.savefig('compare_1_rd.png',dpi=600)
-    plt.show()
+    #plt.show()
     yy = np.shape(ds_simr)
-    #print('rr=',rr)#输出查看ds_sim的维度，即模型预测下的透镜信号    
     #比较观测的sigma和预测的Sigma,比较结果用fitr和fitb记录比较结果
-    delta_r = np.zeros(N,dtype=np.float)
-    for t in range(0,N):
+    delta_r = np.zeros(lm_bin,dtype=np.float)
+    for t in range(0,lm_bin):
         d_r = 0
         for n in range(0,yy[1]):
             d_r = d_r+((ds_simr[t,n]-dssa[0,n])/ds_errsa[0,n])**2
@@ -211,33 +215,33 @@ def fit_datar(y):
     #下面这段求每个质量级对应的方差最小值
     deltar = delta_r.tolist()
     xr = deltar.index(min(deltar))
-    bestfmr = m[xr]
+    bestfmr = mr[xr]
     best_mr = bestfmr+np.log10(h)
     #作图对比最佳情况
     '''
     plt.figure()
     k = xr
-    fig_fff1(rp,ds_simr,k)
+    fig_0f1(rp,ds_simr,k,mass_bin)
     plt.title('Red')
     #plt.savefig('fit_r.png',dpi=600)
     plt.show()
     '''
-    print('x^2=',min(deltar))
-    print('mr=',best_mr)
-    print('positionr=',xr)
-    return rp,best_mr,delta_r
-#fit_datar(y=True)
-def fit_datab(y):
-#def fit_datab(mass_bin):
+    #print('x^2=',min(deltar))
+    #print('mr=',best_mr)
+    #print('positionr=',xr)
+    return rp,best_mr,delta_r,bestfmr
+#fit_datar_1(y=True)
+#def fit_datab_1(y):
+def fit_datab_1(mass_bin,T):
     h = 0.7
     #先找出观测值对应的rp
-    rsa,dssa,ds_errsa = test_read_m16_ds()
-    #rsa,dssa,ds_errsa = test_read_m16_ds(mass_bin=mass_bin)
+    #rsa,dssa,ds_errsa = test_read_m16_ds_1()
+    rsa,dssa,ds_errsa = test_read_m16_ds_1(mass_bin=mass_bin)
     # print('ds=',dssa)
     # print('ds_err=',ds_errsa)
     #print('rp=',rsa)  
     a = np.shape(dssa)
-    print('size a=',a)
+    #print('size a=',a)
     ##注意到观测数值选取的是物理坐标，需要靠里尺度银子修正，修正如下
     z_b = 0.1
     #z_b = 0.124
@@ -247,16 +251,18 @@ def fit_datab(y):
     # rp = [rsa[0,k] for k in range(0,len(rsa[0,:])) if rsa[0,k]*h<=2]
     # rp = rsa[0,:]
     #该句直接对数组筛选，计算2Mpc以内（保证NFW模型适用的情况下）信号
-    print(rp)
     b = len(rp)
     m,N = input_mass_bin(v=True)
+    mb = m[T]
+    print('mb=',mb)
+    lm_bin = len(mb) 
     #下面做两组数据的方差比较,注意不能对观测数据进行插值
     #比较方法，找出观测的sigma数值对应的Rp,再根据模型计算此时的模型数值Sigma（该步以完成）    
-    ds_simb = np.zeros((N,b),dtype=np.float)
-    rb = np.zeros(N,dtype=np.float)
-    for t in range(0,N):
+    ds_simb = np.zeros((lm_bin,b),dtype=np.float)
+    rb = np.zeros(lm_bin,dtype=np.float)
+    for t in range(0,lm_bin):
         m_ = 1
-        x = m[t]
+        x = mb[t]
         #Rpc = rp
         #Rpc,Sigma,deltaSigma = calcu_sigma(Rpc,m_,x)    
         #ds_simr[k,t,:] = deltaSigma
@@ -266,19 +272,19 @@ def fit_datab(y):
         Rpc,Sigma,deltaSigma,rs = calcu_sigmaz(Rpc,m_,x,z_b)
         #对预测信号做相应的变化，把共动的转为物理的
         ds_simb[t,:] = deltaSigma
-        rb[t] = rs
-        fig_fff1(rp,ds_simb,t)
-    plt.title('Blue')
+        ##下面部分作图对比
+        #rb[t] = rs
+        #fig_0f1(rp,ds_simb,t,mass_bin)
+    #plt.title('Blue')
     #plt.legend(m[:],bbox_to_anchor=(1,1))   
-    plt.legend(m[:])   
+    #plt.legend(m[:])   
     #plt.savefig('Fit-blue2.png',dpi=600)
     #plt.savefig('compare_2_bl.png',dpi=600)
-    plt.show()
+    #plt.show()
     yy = np.shape(ds_simb)
-    #print('rr=',rr)#输出查看ds_sim的维度，即模型预测下的透镜信号    
     #比较观测的sigma和预测的Sigma,比较结果用fitr和fitb记录比较结果
-    delta_b = np.zeros(N,dtype=np.float)
-    for t in range(0,N):
+    delta_b = np.zeros(lm_bin,dtype=np.float)
+    for t in range(0,lm_bin):
         d_b = 0
         for n in range(0,yy[1]):
             d_b = d_b+((ds_simb[t,n]-dssa[1,n])/ds_errsa[1,n])**2
@@ -287,27 +293,27 @@ def fit_datab(y):
     #下面这段求每个质量级对应的方差最小值
     deltab = delta_b.tolist()
     xb = deltab.index(min(deltab))
-    bestfmb = m[xb]
+    bestfmb = mb[xb]
     best_mb = bestfmb+np.log10(h)
     #作图对比最佳情况
     '''
     plt.figure()
     k = xb
-    fig_fff1(rp,ds_simb,k)
+    fig_0f1(rp,ds_simb,k,mass_bin)
     plt.title('Blue')
     #plt.savefig('fit_r.png',dpi=600)
     plt.show()
     '''
-    print('x^2=',min(deltab))
-    print('mb=',best_mb)
-    print('positionr=',xb)
-    return rp,best_mb,delta_b
-#fit_datab(y=True)
+    #print('x^2=',min(deltab))
+    #print('mb=',best_mb)
+    #print('positionr=',xb)
+    return rp,best_mb,delta_b,bestfmb
+#fit_datab_1(y=True)
 #下面做图比较最佳预测值与观测的对比情况
-def fig_(T):
+def fig_1(tt):
     m,N = input_mass_bin(v=True)
-    rp,best_mr,delta_r = fit_datar(y=True)
-    rp,best_mb,delta_b = fit_datab(y=True)
+    rp,best_mr,delta_r,bestfmr = fit_datar_1(y=True)
+    rp,best_mb,delta_b,bestfmb = fit_datab_1(y=True)
     #rp,best_mr,delta_r = fit_datar(mass_bin)
     #rp,best_mb,delta_b = fit_datab(mass_bin)
     plt.subplot(121)
@@ -327,7 +333,93 @@ def fig_(T):
     print('mr=',best_mr)
     print('mb=',best_mb)
     return m,N,best_mr,best_mb
-fig_(T=True)
+#fig_(tt=True)
+def fig_mass(pp):
+    m_bin = ['10.0_10.4','10.4_10.7','10.7_11.0','11.0_15.0']
+    #质量区间
+    x_m = np.logspace(1,1.18,4)
+    ##画图质量区间
+    m,N = input_mass_bin(v=True)
+    print(m)
+    #该句导入拟合质量
+    Pr_mh = np.zeros((len(m_bin),2),dtype=np.float)
+    #保存以Msolar/h为单位的最佳质量
+    b_m_r = np.zeros(len(m_bin),dtype=np.float)
+    b_m_b = np.zeros(len(m_bin),dtype=np.float)
+    #分别保存以Msolar为单位的最佳拟合质量
+    x_std = np.zeros((len(m_bin),2),dtype=np.float)    
+    #Pr_mh的第一行存red的质量，第二行存blue的质量,x_std也一样
+    for k in range(0,len(m_bin)):
+        rp,best_mr,delta_r,bestfmr = fit_datar_1(m_bin[k],k)
+        rp,best_mb,delta_b,bestfmb = fit_datab_1(m_bin[k],k)
+        Pr_mh[k,0] = best_mr
+        Pr_mh[k,1] = best_mb
+        b_m_r[k] = bestfmr
+        b_m_b[k] = bestfmb
+    ##下面这段求解误差棒
+    m_mean = np.zeros(len(m_bin),dtype=np.float)
+    m_std = np.zeros(len(m_bin),dtype=np.float)
+    m_se = np.zeros(len(m_bin),dtype=np.float)
+    for k in range(0,len(m_bin)):
+        nn = m[k].size#求样本大小
+        x_mean = np.mean(m[k])#求算术平均值
+        x_std = np.std(m[k])#求标准偏差
+        x_se = x_std/np.sqrt(nn)#求标准误差
+        dof = nn-1#自由度计算
+        alpha = 1.0-0.95
+        #95%的置信区间
+        conf_region = st.ppf(1-alpha/2.,dof)*x_std*np.sqrt(1.+1./nn)#设置置信区间
+        m_mean[k] = x_mean
+        m_std[k] = x_std
+        m_se[k] = x_se
+    ##为了区分开两种星系，把显示误差棒弱化,第一部分为标准误差
+    plt.figure()
+    color_list = ['r','b','g']
+    bar_list = ['s','^','v']
+    #scatter函数参数设置
+    for k in range(0,len(Pr_mh[0,:])):
+        plt.errorbar(m_bin,Pr_mh[:,k],yerr=m_se[:],marker=bar_list[k],
+                     mfc=color_list[k],mec=color_list[k],ms=5,mew=5)
+        plt.fill_between(m_bin,Pr_mh[:,k]+m_se[:],Pr_mh[:,k]-m_se[:],
+                         facecolor=color_list[k],alpha=.20)
+    plt.xlabel(r'$log[M_\ast/M_\odot]$')
+    plt.ylabel(r'$log{\langle M_{200} \rangle/[M_\odot h^{-1}]}$')    
+    plt.legend(['red','blue','red','blue'])
+    plt.title('Standard Deviation-95%-conf_region')
+    #plt.savefig('Standard_deviation.png',dpi=600)
+    plt.show()
+    print('phy_mr=',Pr_mh[:,0])
+    print('phy_mb=',Pr_mh[:,1])
+    ##为了区分开两种星系，把显示误差棒弱化,第二部分为百分误差
+    per_er_r = np.zeros((len(m),2),dtype=np.float)
+    per_er_b = np.zeros((len(m),2),dtype=np.float)
+    per_err = np.zeros((len(m),2),dtype=np.float)
+    per_erb = np.zeros((len(m),2),dtype=np.float)
+    for k in range(0,len(m)):
+        per_er_r[k,:] = np.percentile(m[k],[5,95],interpolation='linear')
+        per_er_b[k,:] = np.percentile(m[k],[5,95],interpolation='linear')
+        per_err[k,:] = per_er_r[k,:]-b_m_r[k]
+        per_erb[k,:] = per_er_b[k,:]-b_m_b[k]        
+    print(per_err)
+    print(per_erb)
+    plt.figure()
+    for k in range(0,2):
+        plt.errorbar(m_bin,Pr_mh[:,0],yerr=per_err[:,k]/5,marker=bar_list[0],
+                     mfc=color_list[0],mec=color_list[0],ms=5,mew=5)
+        plt.errorbar(m_bin,Pr_mh[:,1],yerr=per_erb[:,k]/5,marker=bar_list[1],
+                     mfc=color_list[1],mec=color_list[1],ms=5,mew=5)
+    plt.fill_between(m_bin,Pr_mh[:,0]+per_err[:,0]/5,Pr_mh[:,0]+per_err[:,1]/5,
+                     facecolor=color_list[0],alpha=.20)
+    plt.fill_between(m_bin,Pr_mh[:,1]+per_erb[:,0]/5,Pr_mh[:,1]+per_erb[:,1]/5,
+                     facecolor=color_list[1],alpha=.20)
+    plt.xlabel(r'$log[M_\ast/M_\odot]$')
+    plt.ylabel(r'$log{\langle M_{200} \rangle/[M_\odot h^{-1}]}$')    
+    plt.legend(['red','blue','red','blue'])
+    plt.title('Percentile-Deviation')
+    #plt.savefig('percentile_deviation.png',dpi=600)
+    plt.show()
+    return Pr_mh,x_std
+fig_mass(pp=True)
 '''
 if __name__ == "__main__":
     dolad_data(m=True,hz=True)

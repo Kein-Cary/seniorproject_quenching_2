@@ -1,10 +1,9 @@
-# 01 May 2017 00:20:09
 import os.path
 import numpy as np
 import matplotlib.pyplot as plt
 """Read the Mandelbaum+2016 Weak Lensing data."""
 m16path = 'D:/mask/seniorproject_quenching-master/data/M16/'
-def read_m16_ds(use_red=True, mass_bin='10.0_10.4'):
+def read_m16_ds_1(use_red=True, mass_bin='10.0_10.4'):
     """Read DeltaSigma data from Mandelbaum+16.
     Parameters
     ---
@@ -45,7 +44,7 @@ def read_m16_ds(use_red=True, mass_bin='10.0_10.4'):
                                    unpack=True)
     return(rp, ds, ds_err)
 
-def read_m16_mass(use_red):
+def read_m16_mass_1(use_red):
     if use_red:
         usecols = [0, 1, 3, 4]
         # correction for differences in mass definitions
@@ -72,10 +71,11 @@ def read_m16_mass(use_red):
     # out = [lgms, lgmh, emhlow, emhupp]
     out = [lgms, lgmh, errlgmh]
     return(out)
-def test_read_m16_ds(mass_bin="11.0_15.0"):
+
+def test_read_m16_ds_1(mass_bin):
     """Test the M16 Reader."""
     ##加入数组，记录rp,ds,ds_error的变化和取值。
-    rp, ds, ds_err = read_m16_ds(use_red=True, mass_bin=mass_bin)
+    rp, ds, ds_err = read_m16_ds_1(use_red=True, mass_bin=mass_bin)
     rsa = np.zeros((2,len(rp)),dtype=np.float)
     dssa = np.zeros((2,len(rp)),dtype=np.float)
     ds_errsa = np.zeros((2,len(rp)),dtype=np.float)
@@ -83,7 +83,7 @@ def test_read_m16_ds(mass_bin="11.0_15.0"):
     dssa[0,:] = ds
     ds_errsa[0,:] = ds_err
     plt.errorbar(rp, ds, yerr=ds_err, marker="o", ms=3, color="red")
-    rp, ds, ds_err = read_m16_ds(use_red=False, mass_bin=mass_bin)
+    rp, ds, ds_err = read_m16_ds_1(use_red=False, mass_bin=mass_bin)
     rsa[1,:] = rp
     dssa[1,:] = ds
     ds_errsa[1,:] = ds_err
@@ -97,20 +97,22 @@ def test_read_m16_ds(mass_bin="11.0_15.0"):
     #print('rp=',rp)
     #print('ds=',dssa)
     #print('error=',ds_errsa)
+    #plt.show()
     return rsa,dssa,ds_errsa
     #-sa表示设置数组
-    #plt.show()
-##最后图示的是该段代码所做图像
-def test_read_m16_mass():
-    lgms, lgmh, err = read_m16_mass(use_red=True)
+    ##最后图示的是该段代码所做图像
+def test_read_m16_mass_1():
+    lgms, lgmh, err = read_m16_mass_1(use_red=True)
     plt.errorbar(lgms, lgmh, yerr=err, marker="o", ms=3, color="red")
-    lgms, lgmh, err = read_m16_mass(use_red=False)
+    lgms, lgmh, err = read_m16_mass_1(use_red=False)
     plt.errorbar(lgms, lgmh, yerr=err, marker="s", ms=3, color="blue")
     plt.xlabel(r"$M_*\;[M_\odot/h^2]$")
     plt.ylabel(r"$M_h\;[M_\odot/h]$")
     plt.grid()
     #plt.show()
+'''
 if __name__ == "__main__":
-    test_read_m16_ds(mass_bin='11.0_15.0')
+    test_read_m16_ds_1(mass_bin='11.0_15.0')
     # test_read_m16_mass()
     pass
+'''
