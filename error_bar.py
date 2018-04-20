@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 #import pandas as pd
 from scipy.stats import t as st
 #import seaborn as sns
+#from scipy.stats import chisquare as chi
 #画误差棒函数须引入scipy库
 #导入的质量区间为11~15dex-Msolar
 def input_mass_bin(v):
@@ -19,8 +20,8 @@ def input_mass_bin(v):
     z = np.loadtxt(fname,delimiter=',',dtype=np.float,unpack=True)  
     z = np.array(z)
     N = 4
-    m = np.array([np.linspace(11,13,21),np.linspace(12,14,21),\
-                  np.linspace(12,14,21),np.linspace(11,14,31)])
+    m = np.array([np.linspace(11,12.75,1001),np.linspace(11,12.75,1001),\
+                  np.linspace(11.75,13,2001),np.linspace(12.25,13.75,2001)])
     #针对不同质量区间设置拟合质量范围
     return m,N,z
 #input_mass_bin(v=True)
@@ -181,7 +182,7 @@ def fit_datar_1(mass_bin,z_int,T):
     b = len(rp)
     m,N,z = input_mass_bin(v=True)
     mr = m[T]
-    print('mr=',mr)
+    #print('mr=',mr)
     lm_bin = len(mr) 
     #下面做两组数据的方差比较,注意不能对观测数据进行插值
     #比较方法，找出观测的sigma数值对应的Rp,再根据模型计算此时的模型数值Sigma（该步以完成）    
@@ -262,7 +263,7 @@ def fit_datab_1(mass_bin,z_int,T):
     b = len(rp)
     m,N,z = input_mass_bin(v=True)
     mb = m[T]
-    print('mr=',mb)
+    #print('mr=',mb)
     lm_bin = len(mb) 
     #下面做两组数据的方差比较,注意不能对观测数据进行插值
     #比较方法，找出观测的sigma数值对应的Rp,再根据模型计算此时的模型数值Sigma（该步以完成）    
@@ -348,9 +349,13 @@ def fig_1(tt):
 #fig_(tt=True)
 def fig_mass(pp):
     m_bin = ['10.0_10.4','10.4_10.7','10.7_11.0','11.0_15.0']
-    #x_m = np.logspace(1,1.18,4)
+    mbin = [10.2,10.55,10.9,13.0]
+    #作图取点
     m,N,z = input_mass_bin(v=True)
     z_use = np.zeros((len(m_bin),2),dtype=np.float)
+    ##计算误差棒并存储的数组
+    err_bar_r = np.zeros((len(m_bin),2),dtype=np.float)
+    err_bar_b = np.zeros((len(m_bin),2),dtype=np.float)
     for k in range(0,len(m_bin)):
         if k==len(m_bin)-1:
             z_use[k,:] = z[:,-1]
@@ -370,67 +375,97 @@ def fig_mass(pp):
         Pr_mh[k,1] = best_mb
         b_m_r[k] = bestfmr
         b_m_b[k] = bestfmb
-    ##下面这段求解误差棒
-    m_mean = np.zeros(len(m_bin),dtype=np.float)
-    m_std = np.zeros(len(m_bin),dtype=np.float)
-    m_se = np.zeros(len(m_bin),dtype=np.float)
-    for k in range(0,len(m_bin)):
-        nn = m[k].size#求样本大小
-        x_mean = np.mean(m[k])#求算术平均值
-        x_std = np.std(m[k])#求标准偏差
-        x_se = x_std/np.sqrt(nn)#求标准误差
-        dof = nn-1#自由度计算
-        alpha = 1.0-0.95
-        #95%的置信区间
-        conf_region = st.ppf(1-alpha/2.,dof)*x_std*np.sqrt(1.+1./nn)#设置置信区间
-        m_mean[k] = x_mean
-        m_std[k] = x_std
-        m_se[k] = x_se
-    ##为了区分开两种星系，把显示误差棒弱化,第一部分为标准误差
+        ##下面把x^2转化为相应的概率分布，并让mh的划分区间服从这个分布
+        mr = m[k]
+        mb = m[k]
+        rsa,dssa,ds_errsa = test_read_m16_ds_1(mass_bin=m_bin[k])
+        pr = np.ones(len(m[k]),dtype=np.float)
+        pb = np.ones(len(m[k]),dtype=np.float)
+        ds_errsar = ds_errsa[0,0:len(rp)]
+        ds_errsab = ds_errsa[1,0:len(rp)]
+        for q in range(0,len(mr)):
+            ss=1
+            for t in range(0,len(rp)):
+                ss = ss*(1/(np.sqrt(np.pi*2)*ds_errsar[t]))*np.exp((-1/2)*delta_r[q])
+            pr[q]=ss
+        for q in range(0,len(mb)):
+            qq=1
+            for t in range(0,len(rp)):
+                qq = qq*(1/(np.sqrt(np.pi*2)*ds_errsab[t]))*np.exp((-1/2)*delta_b[q])
+            pb[q]=qq
+        ##第一次归一化，把概率密度函数归一到0~1之间
+        pr = (pr-np.min(pr))/(np.max(pr)-np.min(pr))
+        pb = (pb-np.min(pb))/(np.max(pb)-np.min(pb))
+        '''
+        plt.figure()
+        plt.plot(mr,pr,'r')
+        plt.title('Probability distribution')
+        plt.xlabel(r'$log(M_h/M_\odot)$')
+        plt.ylabel(r'$dP(M_h|M_\ast)/dM_h$')
+        plt.show()
+        plt.plot(mb,pb,'b')
+        plt.title('Probability distribution')
+        plt.xlabel(r'$log(M_h/M_\odot)$')
+        plt.ylabel(r'$dP(M_h|M_\ast)/dM_h$')
+        plt.show()
+        '''
+        #print('r=',delta_r)
+        #print('b=',delta_b)
+        ##第二次归一化，目的是让所有概率求和为1
+        fr=np.zeros(len(mr),dtype=np.float)
+        fb=np.zeros(len(mb),dtype=np.float)
+        ss=0
+        qq=0
+        Fr=np.zeros(len(mr),dtype=np.float)
+        Fb=np.zeros(len(mb),dtype=np.float)
+        for q in range(0,len(mr)):
+            ss=ss+pr[q]*(mr[1]-mr[0])
+            fr[q]=ss
+        for q in range(0,len(mb)):
+            qq=qq+pb[q]*(mb[1]-mb[0])
+            fb[q]=qq
+        Ar = np.max(fr)
+        Ab = np.max(fb)
+        ss=0
+        qq=0
+        for q in range(0,len(mr)):
+            ss=ss+pr[q]*(mr[1]-mr[0])/Ar
+            Fr[q]=ss
+        for q in range(0,len(mb)):
+            qq=qq+pb[q]*(mb[1]-mb[0])/Ab
+            Fb[q]=qq   
+        #plt.figure()
+        #plt.plot(mr,Fr,'r')
+        #plt.show()
+        #plt.plot(mb,Fb,'b')
+        #plt.show()
+        vr = np.interp(0.16,Fr,mr)
+        ur = np.interp(0.84,Fr,mr)
+        err_bar_r[k,:] = [vr-bestfmr,ur-bestfmr]
+        vb = np.interp(0.16,Fb,mb)
+        ub = np.interp(0.84,Fb,mb)
+        err_bar_b[k,:] = [vb-bestfmb,ub-bestfmb]
+    ##对应for循环前面的plt.figure
+    #print('phy_mr=',Pr_mh[:,0])
+    #print('phy_mb=',Pr_mh[:,1])
+    #print('errbar_r=',err_bar_r)
+    #print('errbar_b=',err_bar_b)
     plt.figure()
     color_list = ['r','b','g']
-    bar_list = ['s','^','v']
-    #scatter函数参数设置
-    for k in range(0,len(Pr_mh[0,:])):
-        plt.errorbar(m_bin,Pr_mh[:,k],yerr=m_se[:],marker=bar_list[k],
-                     mfc=color_list[k],mec=color_list[k],ms=5,mew=5)
-        plt.fill_between(m_bin,Pr_mh[:,k]+m_se[:],Pr_mh[:,k]-m_se[:],
-                         facecolor=color_list[k],alpha=.20)
+    line1,caps1,bars1=plt.errorbar(mbin,Pr_mh[:,0],yerr=[err_bar_r[:,0],err_bar_r[:,1]],fmt="ks-",linewidth=1,
+                                elinewidth=0.5,ecolor='k',capsize=1,capthick=0.5,label='red')
+    line3,caps3,bars3=plt.errorbar(mbin,Pr_mh[:,1],yerr=[err_bar_b[:,0],err_bar_b[:,1]],fmt="k^-",linewidth=1,
+                                elinewidth=0.5,ecolor='k',capsize=1,capthick=0.5,label='blue')
+    plt.fill_between(mbin,Pr_mh[:,0]+err_bar_r[:,0],Pr_mh[:,0]+err_bar_r[:,1],
+                         facecolor=color_list[0],alpha=.20)
+    plt.fill_between(mbin,Pr_mh[:,1]+err_bar_b[:,0],Pr_mh[:,1]+err_bar_b[:,1],
+                         facecolor=color_list[1],alpha=.20)
     plt.xlabel(r'$log[M_\ast/M_\odot]$')
     plt.ylabel(r'$log{\langle M_{200} \rangle/[M_\odot h^{-1}]}$')    
-    plt.legend(['red','blue','red','blue'])
-    plt.title('Standard Deviation-95%-conf_region_z')
-    #plt.savefig('Standard_deviation_z.png',dpi=600)
-    plt.show()
-    print('phy_mr=',Pr_mh[:,0])
-    print('phy_mb=',Pr_mh[:,1])
-    ##为了区分开两种星系，把显示误差棒弱化,第二部分为百分误差
-    per_er_r = np.zeros((len(m),2),dtype=np.float)
-    per_er_b = np.zeros((len(m),2),dtype=np.float)
-    per_err = np.zeros((len(m),2),dtype=np.float)
-    per_erb = np.zeros((len(m),2),dtype=np.float)
-    for k in range(0,len(m)):
-        per_er_r[k,:] = np.percentile(m[k],[5,95],interpolation='linear')
-        per_er_b[k,:] = np.percentile(m[k],[5,95],interpolation='linear')
-        per_err[k,:] = per_er_r[k,:]-b_m_r[k]
-        per_erb[k,:] = per_er_b[k,:]-b_m_b[k]        
-    print(per_err)
-    print(per_erb)
-    plt.figure()
-    for k in range(0,2):
-        plt.errorbar(m_bin,Pr_mh[:,0],yerr=per_err[:,k]/5,marker=bar_list[0],
-                     mfc=color_list[0],mec=color_list[0],ms=5,mew=5)
-        plt.errorbar(m_bin,Pr_mh[:,1],yerr=per_erb[:,k]/5,marker=bar_list[1],
-                     mfc=color_list[1],mec=color_list[1],ms=5,mew=5)
-    plt.fill_between(m_bin,Pr_mh[:,0]+per_err[:,0]/5,Pr_mh[:,0]+per_err[:,1]/5,
-                     facecolor=color_list[0],alpha=.20)
-    plt.fill_between(m_bin,Pr_mh[:,1]+per_erb[:,0]/5,Pr_mh[:,1]+per_erb[:,1]/5,
-                     facecolor=color_list[1],alpha=.20)
-    plt.xlabel(r'$log[M_\ast/M_\odot]$')
-    plt.ylabel(r'$log{\langle M_{200} \rangle/[M_\odot h^{-1}]}$')    
-    plt.legend(['red','blue','red','blue'])
-    plt.title('Percentile-Deviation_z')
-    #plt.savefig('percentile_deviation_z.png',dpi=600)
+    plt.legend(loc=2)
+    plt.title(r'$Standard Deviation-1\sigma_{p}$')
+    plt.axis([10,14,11,14])
+    #plt.savefig('Standard_deviation.png',dpi=600)
     plt.show()
     return Pr_mh
 fig_mass(pp=True)

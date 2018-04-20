@@ -188,28 +188,5 @@ def fig_(T):
     #plt.savefig('x^2.png',dpi=600)
     plt.show()
     print('consist=',min(delta_r)/min(delta_b))   
-    ##下面把给定的质量拟合区间结合x^2分布，给出质量选取的概率分布函数：
-    pr = np.ones(len(d_exr),dtype=np.float)#用于存放red拟合的X^2的概率分布函数
-    pb = np.ones(len(d_exb),dtype=np.float)#用于存放red拟合的X^2的概率分布函数 
-    #把要求分布的部分的观测数据取出来
-    #dssar = dssa[0,0:len(rp)]
-    #dssab = dssa[1,0:len(rp)]
-    ds_errsar = ds_errsa[0,0:b]
-    ds_errsab = ds_errsa[1,0:b]
-    for k in range(0,len(d_exr)):
-        ss = 1
-        for t in range(0,b):
-            ss = ss*(np.exp(-1*delta_r[k]/2)/(np.sqrt(2*np.pi)*ds_errsar[t]))
-        pr[k] = ss
-    for k in range(0,len(d_exb)):
-        ss = 1
-        for t in range(0,b):
-            ss = ss*(np.exp(-1*delta_b[k]/2)/(np.sqrt(2*np.pi)*ds_errsab[t]))
-        pb[k] = ss
-    plt.figure()
-    h=0.673
-    plt.plot(d_exb+np.log10(h),pb,'b-')
-    plt.plot(d_exr+np.log10(h),pr,'r-')
-    plt.show()
     return
 fig_(T=True)
