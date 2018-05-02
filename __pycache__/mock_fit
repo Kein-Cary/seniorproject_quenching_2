@@ -1,0 +1,177 @@
+# 02 May 2017 00:48:45
+import sys
+#sys.path.insert(0,'D:/Python1/pydocument/seniorproject_quenching2/practice/_pycache_/session_1')
+sys.path.insert(0,'D:/Python1/pydocument/seniorproject_quenching2/practice')
+##导入自己编写的脚本，需要加入这两句，一句声明符号应用，然后声明需要引入文-
+##件的路径具体到文件夹
+#import os.path
+import h5py
+import numpy as np
+import matplotlib.pyplot as plt
+def _read_recdict_from_hdf5(h5file):
+    """Read a dict of record arrays from hdf5."""
+    f = h5py.File(h5file, "r")
+    recdict = {}
+    #for grp, val in f.iteritems():
+    ##新的h5py模块里面，修改为items包
+    for grp, val in f.items():
+        print(grp)
+        datasets = []
+        dtypes = []
+        for key in f[grp].keys():
+            dset = f[grp][key][:]
+            dtypename = f[grp][key].dtype.name
+            dtype = (str(key), dtypename)
+            datasets.append(dset)
+            dtypes.append(dtype)
+        print(dtypes)
+        recdict[str(grp)] = np.rec.fromarrays(tuple(datasets), dtype=dtypes)
+    f.close()
+    return(recdict)
+def read_mock(mockfile):
+    """Read hdf5 galaxy mock data into a numpy.recarray"""
+    recdict = _read_recdict_from_hdf5(mockfile)
+    mockdata = recdict['galaxy']
+    print("The data columns are: ")
+    print(mockdata.dtype.names)
+    return(mockdata)
+def read_mock_hmf(mockfile, mmin=1.e9, mmax=1.e16, nmbin=101, h=0.701, rcube=250.0):
+    """Read Halo Mass Function.
+    Returns
+    ---
+    Mh_arr: ndarray
+        Halo mass in Msun.
+    dndlnMh_arr: ndarray
+        Number density in # per lnMsun per Mpc^3.
+    """
+    galrec = read_mock(mockfile)
+    iscen = galrec['lg_halo_mass'] > 0
+    Mh_arr = np.logspace(np.log10(mmin), np.log10(mmax), nmbin)
+    wid = np.log10(Mh_arr[1] / Mh_arr[0])
+    _wid = np.log(Mh_arr[1] / Mh_arr[0])
+    #print(wid)
+    _Mh_arr = np.zeros(Mh_arr.size+1)
+    _Mh_arr[1:] = Mh_arr * 10**(0.5*wid)
+    _Mh_arr[0] = Mh_arr[0] / 10**(0.5*wid)
+    dn_arr = np.histogram(galrec['lg_halo_mass'][iscen] - np.log10(h), bins=np.log10(_Mh_arr))[0]
+    dndlnMh_arr = dn_arr / _wid
+    vol = (rcube / h)**3
+    dndlnMh_arr /= vol
+    ###下面一个数组作为把数据读取和处理的尝试
+    viw = galrec['z_rs']
+    con_galaxy = galrec['conc']
+    col_galaxy = galrec['g-r']
+    Mh_galaxy = galrec['lg_halo_mass']
+    Mstar_galaxy = galrec['lg_stellar_mass']
+    loc1_galaxy = galrec['x']
+    loc2_galaxy = galrec['y']
+    loc3_galaxy = galrec['z']
+    g_id = galrec['halo_id']
+    ###建立一个输出字典，把需要处理的和Mh-function有关的物理量取出来
+    use_data = {'a':viw, 'b':con_galaxy, 'c':col_galaxy, 'd':Mh_galaxy, 'e':Mstar_galaxy,
+                'f':loc1_galaxy, 'g':loc2_galaxy, 'h':loc3_galaxy, 'i':g_id
+                }
+    return(Mh_arr, dndlnMh_arr, use_data)
+def plot_mock_hmf(mockfile, rcube=250.0):
+    ##模拟坐标为共栋坐标，尺寸为：250Mpc/h（每个维度）
+    """plot the halo mass function in the mock."""
+    Mh_arr, dndlnMh_arr, use_data = read_mock_hmf(mockfile, mmin=1.e10, mmax=1.e16, 
+                                                  nmbin=50, h=0.7, rcube=rcube)
+    plt.plot(np.log10(Mh_arr), dndlnMh_arr, 'k-', label="Simulation")
+    plt.legend(loc=1)
+    plt.yscale('log')
+    plt.xlabel(r"$M_h\;[M_\odot]$")
+    plt.ylabel(r"$dn/d\ln M_h$")
+    plt.ylim(1e-8, 1e-1)
+    plt.show()
+    N = np.array(use_data['b'].shape)
+    print('size_con=',N)
+    ###查看数据量：529308*8~=4000000
+    ###把主晕取出来,并把主晕对应的物理量也取出来
+    ix = use_data['d']>0
+    _halos = use_data['d']
+    ##取出主晕
+    main_halo = _halos[ix]
+    plt.hist(main_halo,100)
+    plt.xlabel(r'$Mh[M_\odot/h]$')
+    plt.title('Main halo')
+    plt.yscale('log')
+    plt.show()
+    n = np.array(main_halo.shape)
+    print('size_mainhalo=',n)
+    frac_ = n[0]/N[0]
+    print('f=',frac_)
+    ##下面把与主晕有关的物理量取出来
+    g_color = use_data['c']
+    ##取出主晕下星系颜色
+    gcolor = g_color[ix]
+    ###尝试读取数据的处理   
+    xv = plt.hist(gcolor,100)
+    plt.title('Color-distribution')
+    plt.xlabel('g-r')
+    plt.show()
+    #print(xv)
+    nu = xv[0]
+    nu = (nu-np.min(nu))/(np.max(nu)-np.min(nu))
+    nv = xv[1]
+    plt.plot(nv[0:-1],nu)
+    plt.show()
+    ##取出参数C
+    con_c = use_data['b']
+    con = con_c[ix]
+    M_star = use_data['e']
+    ##取出恒星质量
+    mstar = M_star[ix]
+    ###下面部分分别观察星系的暗云质量，恒星质量与星系的颜色之间的关系
+    color1 = np.array(con)
+    color2 = np.array(gcolor)
+    color3 = np.random.rand(n[0])
+    color3 = np.sort(color3)
+    '''
+    plt.scatter(main_halo,con,s=0.5,c=color1,alpha=0.2)
+    plt.xlabel(r'$Mh[M_\odot/h]$')
+    plt.ylabel('c')
+    plt.title('Mh-c')
+    plt.show()
+    plt.scatter(main_halo,gcolor,s=0.5,c=color2,alpha=0.2)
+    plt.colorbar()  
+    plt.xlabel(r'$Mh[M_\odot/h]$') 
+    plt.ylabel('g-r')
+    plt.title('Mh-color')
+    plt.show()
+    plt.scatter(mstar,gcolor,s=0.5,c=color2,alpha=0.2)
+    plt.colorbar()  
+    plt.xlabel(r'$M_\ast[M_\odot/h^2]$')
+    plt.ylabel('g-r')    
+    plt.title('Mstar-color')
+    plt.show()
+    plt.scatter(mstar,main_halo,s=0.5,c=color3,alpha=0.2)
+    plt.colorbar()  
+    plt.xlabel(r'$M_\ast[M_\odot/h^2]$')
+    plt.ylabel(r'$Mh[M_\odot/h]$')
+    plt.title('Mstar-Mh')
+    plt.show()
+    '''
+    ##下面取出坐标位置,并尝试取出中央星系和卫星星系
+    Position1 = use_data['f']
+    pos1 = np.array(Position1[ix])
+    Position2 = use_data['g']
+    pos2 = np.array(Position2[ix])
+    Position3 = use_data['h']
+    pos3 = np.array(Position3[ix])
+    ###为了取出group的中央星系，先做星系关于三个坐标平面的三点分布，找到group中心，
+    ###注意到整个盒子的物质分布可能是均匀地（宇宙学原理要求如此） 
+    from mpl_toolkits.mplot3d import Axes3D
+    fig = plt.figure()
+    ax = Axes3D(fig)
+    ax.scatter(pos1,pos2,pos3,s=0.5,c=color1,alpha=0.2)
+    plt.show()
+    return 
+def test_modul(v):
+    #if __name__ ==True##the line can't be run!!
+    #mockfile = '/Users/ying/Data/ihodmock/standard/iHODcatalog_bolshoi.h5'
+    #改为本机绝对路径
+    mockfile = 'D:/Python1/pydocument/seniorproject_quenching2/practice/iHODcatalog_bolshoi.h5'
+    plot_mock_hmf(mockfile)
+    return 
+test_modul(v=True)

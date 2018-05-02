@@ -36,8 +36,8 @@ def test_predict_ds(mass_bin='11.0_15.0'):
         plt.errorbar(rp, ds, yerr=ds_err, marker=marker, ms=5, ls="--", lw=0.5, color=color, label=label)
     _rp = np.logspace(-1.5, 0.8, 20)
     if has_nfw:
-        #lgmass_list = [12, 12.5, 13, 13.5, 14]
-        lgmass_list = [12.4, 12.6, 12.8, 13, 13.2, 13.4, 13.6]
+        lgmass_list = [12, 12.5, 13, 13.5, 14]
+        #lgmass_list = [12.4, 12.6, 12.8, 13, 13.2, 13.4, 13.6]
         #lgmass_list = np.arange(12, 14.2, 0.4)
         nlgmass = len(lgmass_list) * 1.0
         for i, lgmass in enumerate(lgmass_list):
@@ -54,8 +54,8 @@ if __name__ == "__main__":
     test_predict_ds(mass_bin='11.0_15.0')
     #test_predict_ds(mass_bin='10.4_10.7')
     #test_predict_ds(mass_bin='10.7_11.0')
-    fit_datab(y=True)
+    fit_datar(y=True)
     test_predict_ds(mass_bin='11.0_15.0')
     #test_predict_ds(mass_bin='10.4_10.7')
     #test_predict_ds(mass_bin='10.7_11.0')
-    fit_datar(y=True)
+    fit_datab(y=True)

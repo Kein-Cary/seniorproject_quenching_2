@@ -31,9 +31,10 @@ def rou_R(R):
     for k in range(0,lm):
         rouc = (Qc*(3*H**2)/(8*np.pi*G))
         #上句表示添加红移后的修正（z=3.5）
-        #rouc = Qc*(3*H**2)/(8*np.pi*G)
-        roum = 200*rouc*omegam
-        r200[k] = Q200*(3*m[k]*omegam/(4*np.pi*roum))**(1/3)
+        rouc = Qc*(3*H**2)/(8*np.pi*G)
+        rhom = 200*rouc*omegam
+        #rhom=52700242579.0*200/h**2
+        r200[k] = Q200*(3*m[k]*omegam/(4*np.pi*rhom))**(1/3)
         rs[k] = r200[k]/c
         rou0[k] = m[k]/((np.log(1+c)-c/(1+c))*4*np.pi*rs[k]**3)
         for t in range(0,lr):
@@ -55,7 +56,7 @@ def rou_R(R):
     plt.ylabel(r'$\rho(R)-M_\odot-h^2/{Mpc^3}$')
     profile_check(c=True)
     plt.grid()
-    plt.savefig('25.png',dpi=600)
+    #plt.savefig('25.png',dpi=600)
     plt.show()
     print('mh=',integm)
     return(rouR,r,rs,R,lm,lr,r200,c)#需要调用几个就返回几个数组的值

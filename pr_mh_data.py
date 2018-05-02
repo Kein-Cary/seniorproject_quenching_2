@@ -583,6 +583,7 @@ def fig_mass(pp):
     #plt.savefig('probability',dpi=600)
     plt.show()
     ##做出由x^2直接得到的1-sigma的误差棒图像
+    ######注意插值函数的要求：在差值区间要求目标函数为单调递增函数
     Dchir = np.zeros((len(m_bin),2),dtype=np.float)
     Dchib = np.zeros((len(m_bin),2),dtype=np.float) 
     for k in range(0,len(m_bin)):

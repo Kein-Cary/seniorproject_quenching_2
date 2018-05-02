@@ -107,13 +107,13 @@ def semula_tion(omegam,h):
                  deltasegma[n,t] = delta_segma
                  segma[n,t] = 2*rs[n]*rou_0[n]*(1-2*f1/np.sqrt(f0**2-1))/(f0**2-1)
     plt.figure()
-    plt.legend([r'$10^{12}-M_\odot/h$',r'$10^{13}-M_\odot/h$',\
-    r'$10^{14}-M_\odot/h$'],bbox_to_anchor=(1,1),loc=10)
-    plt.subplot(131)
+    legend_list = [r'$10^{12}-M_\odot/h$',r'$10^{13}-M_\odot/h$',r'$10^{14}-M_\odot/h$']
+    ##该句表示根据计算写入曲线标题。
+    #plt.subplot(131)
     delta1 = np.zeros(LL,dtype=np.float)
     delta2 = np.zeros(LL,dtype=np.float)
     for k in range(0,LL):
-        plt.loglog(r[k,:],rou_R[k])
+        plt.loglog(r[k,:],rou_R[k],label=legend_list[k])
         delta1[k] = r_200[k]
         delta2[k] = rs[k]
         plt.axvline(delta1[k],ls='--',linewidth=0.5,color='red')
@@ -121,6 +121,10 @@ def semula_tion(omegam,h):
     plt.xlabel(r'$r-Mpc/h$')
     plt.ylabel(r'$\rho(R)-M_\odot/h$')
     plt.grid()
+    plt.title(r'$\rho(r)$')
+    plt.legend(loc=3)
+    #plt.savefig('rho',dpi=600)
+    plt.show()
     print('mh=',inm)
     #下面的模块做正确性检查，理论上入股从deltasegma的积分可以得到mh 
     ##对密度rou空间积分检测
@@ -136,6 +140,7 @@ def semula_tion(omegam,h):
     print('max_m=',max_m)
     print('mh=',max_m/0.7)
     #print(r_200)
+    '''
     plt.subplot(1,3,2)
     delta1 = np.zeros(LL,dtype=np.float)
     delta2 = np.zeros(LL,dtype=np.float)
@@ -152,18 +157,18 @@ def semula_tion(omegam,h):
     delta1 = np.zeros(LL,dtype=np.float)
     delta2 = np.zeros(LL,dtype=np.float)
     for k in range(0,LL):
-        plt.loglog(Rs[k,:],segma[k,:])
+        plt.loglog(Rs[k,:],segma[k,:],label=legend_list[k])
         delta1[k] = r_200[k]
         delta2[k] = rs[k]
         plt.axvline(delta1[k],ls='--',linewidth=0.5,color='red')
         plt.axvline(delta2[k],ls='--',linewidth=0.5,color='black')
-    plt.legend([r'$10^{12}-M_\odot/h$',r'$10^{13}-M_\odot/h$',\
-    r'$10^{14}-M_\odot/h$'],bbox_to_anchor=(1.25,1.5))
+    plt.legend(loc=2)
     plt.xlabel(r'$r-Mpc/h$')
     plt.ylabel(r'$\Sigma-M_\odot-h/{Mpc^2}$')
     plt.grid()
     plt.tight_layout()
     plt.show()
+    '''
     ##
     #先找出最接近r200的点，然后从曲线开始点积分到该点
     s_mm = np.zeros((LL,L-1),dtype=np.float)
@@ -181,6 +186,7 @@ def semula_tion(omegam,h):
                   smm[k,t] = s_mm[k,t]*rs[k]**2*2*np.pi    
         max_d[k] = np.max(smm[k,:])
     plt.figure()
+    '''
     plt.subplot(2,2,1)
     for d in range(0,LL):
         plt.loglog(Rs1[d,:],smm[d,:])
@@ -202,6 +208,7 @@ def semula_tion(omegam,h):
     plt.xlabel(r'$R-Mpc/h$')
     plt.ylabel(r'$m_h$')
     #plt.title('D-i')#直接积分
+    '''
     #检测结果发现从面密度回到质量估计时质量估计值偏大了一个数量级,返回修正因子，参数正常  
     ##下面是对结果做插值和积分，再回去检测质量是否相等
     N = 10**5
@@ -210,20 +217,24 @@ def semula_tion(omegam,h):
     for k in range(0,LL):
         Rsnew[k,:] = np.linspace(Rs1[k,0],Rs1[k,-1],N)
         segma_p[k,:] = np.interp(Rsnew[k,:],Rs1[k,:],sigma[k,:])
-    plt.subplot(2,2,3)
+    #plt.subplot(2,2,3)
     delta1 = np.zeros(LL,dtype=np.float)
     delta2 = np.zeros(LL,dtype=np.float)
     for k in range(0,LL):       
         x3 = Rsnew[k,:]
         y3 = segma_p[k,:]
-        plt.loglog(x3,y3)
+        plt.loglog(x3,y3,label=legend_list[k])
         delta1[k] = r_200[k]
         delta2[k] = rs[k]
         plt.axvline(delta1[k],ls='--',linewidth=0.5,color='red')
-        plt.axvline(delta2[k],ls='--',linewidth=0.5,color='black')
+        plt.axvline(delta2[k],ls='--',linewidth=0.5,color='blue')
         plt.grid()
     plt.xlabel(r'$R-Mpc/h$')
     plt.ylabel(r'$\Delta\Sigma(\frac{R}{rs})-M_{\odot}hMpc^{-2}$')
+    plt.title(r'$\Delta\Sigma(R)$')
+    plt.legend(loc=3)
+    #plt.savefig('Sigma',dpi=600)
+    plt.show()
     ##插值完成
     ##下面做辛普森积分
     smm2 = np.zeros((LL,N),dtype=np.float)
@@ -245,23 +256,24 @@ def semula_tion(omegam,h):
                smm3[k,t] = smm2[k,t]*rs[k]**2*2*np.pi 
         max_s[k] = np.max(smm3[k,:])
     print('smm3=',max_s)
+    '''
     plt.subplot(2,2,4)
     delta1 = np.zeros(LL,dtype=np.float)
     delta2 = np.zeros(LL,dtype=np.float)
     for d in range(0,LL):
-        plt.loglog(Rsnew1[d,:],smm3[d,:])
+        plt.loglog(Rsnew1[d,:],smm3[d,:],label=legend_list[k])
         delta1[k] = r_200[k]
         delta2[k] = rs[k]
         plt.axvline(delta1[k],ls='--',linewidth=0.5,color='red')
         plt.axvline(delta2[k],ls='--',linewidth=0.5,color='blue')
         plt.grid()
-    plt.legend([r'$10^{12}-M_\odot/h$',r'$10^{13}-M_\odot/h$',\
-    r'$10^{14}-M_\odot/h$'],bbox_to_anchor=(-1,3.5))
     plt.xlabel(r'$R-Mpc/h$')
     plt.ylabel(r'$m_h$')
     plt.tight_layout()
+    plt.legend(loc=3)
     #plt.title('S-i')#辛普森积分
     plt.show() 
+    '''
     ##下面是高斯积分,采用五点积分高斯公式
     '''
     a = [-0.9062,-0.5385,0,0.5385,0.9062]

@@ -12,9 +12,9 @@ import seaborn as sns
 #画误差棒函数须引入scipy库
 #导入的质量区间为11~15dex-Msolar
 def input_mass_bin(v):
-    N = 48
-    mr = np.linspace(13.3,13.4,N)
-    mb = np.linspace(12.6,13.0,N)
+    N = 5
+    mr = np.linspace(12,14,N)
+    mb = np.linspace(12,14,N)
     #m = np.linspace(12,13.5,N)
     return mr,mb,N
     #return m,N
@@ -60,8 +60,8 @@ def calcu_sigmaz(Rpc,m_,x,z):
     H = h*100
     ##修正可以选择两处，对于计算过程涉及的物理量修正，或者对于常数修正
     rhoc = (Qc*(3*H**2)/(8*np.pi*G))/(1/(1+z))**3
-    rhom = 200*rhoc*omegam
-    #rhom=52700242579.0*200/h**2
+    #rhom = 200*rhoc*omegam
+    rhom=52700242579.0*200/h**2
     #考虑所有的红移为0.1
     r_200 = Q200*(3*m1/(4*np.pi*rhom))**(1/3)
     rs = r_200/c
@@ -181,7 +181,7 @@ def fit_datar(y):
     #下面做两组数据的方差比较,注意不能对观测数据进行插值
     #比较方法，找出观测的sigma数值对应的Rp,再根据模型计算此时的模型数值Sigma（该步以完成）    
     ds_simr = np.zeros((N,b),dtype=np.float)
-    #rr = np.zeros(N,dtype=np.float)
+    rr = np.zeros(N,dtype=np.float)
     for t in range(0,N):
         m_ = 1
         x = mr[t]
@@ -195,14 +195,14 @@ def fit_datar(y):
         Rpc,Sigma,deltaSigma,rs = calcu_sigmaz(Rpc,m_,x,z_r)
         #对预测信号做相应的变化，把共动的转为物理的
         ds_simr[t,:] = deltaSigma
-        #rr[t] = rs
-        #fig_fff1(rp,ds_simr,t)
-    #plt.title('Red')
+        rr[t] = rs
+        fig_fff1(rp,ds_simr,t)
+    plt.title('Red')
     #plt.legend(m[:],bbox_to_anchor=(1,1))
-    #plt.legend(m[:])   
-    #plt.savefig('Fit-red2.png',dpi=600)
+    plt.legend(mr[:])   
+    #plt.savefig('Fit-red.png',dpi=600)
     #plt.savefig('compare_1_rd.png',dpi=600)
-    #plt.show()
+    plt.show()
     yy = np.shape(ds_simr)
     #print('rr=',rr)#输出查看ds_sim的维度，即模型预测下的透镜信号    
     #比较观测的sigma和预测的Sigma,比较结果用fitr和fitb记录比较结果
@@ -232,7 +232,7 @@ def fit_datar(y):
     print('co_mr=',best_mr)
     print('mr=',bestfmr)
     print('positionr=',xr)
-    return rp,best_mr,delta_r
+    return rp,best_mr,delta_r,bestfmr
 #fit_datar(y=True)
 def fit_datab(y):
 #def fit_datab(mass_bin):
@@ -261,7 +261,7 @@ def fit_datab(y):
     #下面做两组数据的方差比较,注意不能对观测数据进行插值
     #比较方法，找出观测的sigma数值对应的Rp,再根据模型计算此时的模型数值Sigma（该步以完成）    
     ds_simb = np.zeros((N,b),dtype=np.float)
-    #rb = np.zeros(N,dtype=np.float)
+    rb = np.zeros(N,dtype=np.float)
     for t in range(0,N):
         m_ = 1
         x = mb[t]
@@ -275,14 +275,14 @@ def fit_datab(y):
         Rpc,Sigma,deltaSigma,rs = calcu_sigmaz(Rpc,m_,x,z_b)
         #对预测信号做相应的变化，把共动的转为物理的
         ds_simb[t,:] = deltaSigma
-        #rb[t] = rs
-        #fig_fff1(rp,ds_simb,t)
-    #plt.title('Blue')
+        rb[t] = rs
+        fig_fff1(rp,ds_simb,t)
+    plt.title('Blue')
     #plt.legend(m[:],bbox_to_anchor=(1,1))   
-    #plt.legend(m[:])   
-    #plt.savefig('Fit-blue2.png',dpi=600)
+    plt.legend(mb[:])   
+    #plt.savefig('Fit-blue.png',dpi=600)
     #plt.savefig('compare_2_bl.png',dpi=600)
-    #plt.show()
+    plt.show()
     yy = np.shape(ds_simb)
     #print('rr=',rr)#输出查看ds_sim的维度，即模型预测下的透镜信号    
     #比较观测的sigma和预测的Sigma,比较结果用fitr和fitb记录比较结果
@@ -312,13 +312,13 @@ def fit_datab(y):
     print('co_mb=',best_mb)
     print('mb=',bestfmb)
     print('positionr=',xb)
-    return rp,best_mb,delta_b
+    return rp,best_mb,delta_b,bestfmb
 #fit_datab(y=True)
 #下面做图比较最佳预测值与观测的对比情况
 def fig_(T):
     mr,mb,N = input_mass_bin(v=True)
-    rp,best_mr,delta_r = fit_datar(y=True)
-    rp,best_mb,delta_b = fit_datab(y=True)
+    rp,best_mr,delta_r,bestfmr = fit_datar(y=True)
+    rp,best_mb,delta_b,bestfmb = fit_datab(y=True)
     #rp,best_mr,delta_r = fit_datar(mass_bin)
     #rp,best_mb,delta_b = fit_datab(mass_bin)
     plt.subplot(121)
@@ -334,88 +334,10 @@ def fig_(T):
     plt.title('B-galaxy')
     plt.grid()
     plt.tight_layout()
+    #plt.savefig('X^2',dpi=600)
     plt.show()  
     print('mr=',best_mr)
     print('mb=',best_mb)
-    ##下面把x^2转化为相应的概率分布，并让mh的划分区间服从这个分布
-    rsa,dssa,ds_errsa = test_read_m16_ds()
-    pr = np.ones(N,dtype=np.float)
-    pb = np.ones(N,dtype=np.float)
-    ds_errsar = ds_errsa[0,0:len(rp)]
-    ds_errsab = ds_errsa[1,0:len(rp)]
-    for k in range(0,N):
-        ss=1
-        qq=1
-        for t in range(0,len(rp)):
-            #ss = ss*(1/(np.sqrt(np.pi*2)*ds_errsar[t]))*np.exp((-1/2)*d_d_r[k])
-            #qq = qq*(1/(np.sqrt(np.pi*2)*ds_errsab[t]))*np.exp((-1/2)*d_d_b[k])
-            ss = ss*(1/(np.sqrt(np.pi*2)*ds_errsar[t]))*np.exp((-1/2)*delta_r[k])
-            qq = qq*(1/(np.sqrt(np.pi*2)*ds_errsab[t]))*np.exp((-1/2)*delta_b[k])
-        pr[k]=ss
-        pb[k]=qq
-    ##第一次归一化，把概率密度函数归一到0~1之间
-    plt.figure()
-    pr = (pr-np.min(pr))/(np.max(pr)-np.min(pr))
-    pb = (pb-np.min(pb))/(np.max(pb)-np.min(pb))
-    plt.plot(mr,pr,'r')
-    plt.title('Probability distribution')
-    plt.xlabel(r'$log(M_h/M_\odot)$')
-    plt.ylabel(r'$dP(M_h|M_\ast)/dM_h$')
-    plt.show()
-    plt.plot(mb,pb,'b')
-    plt.title('Probability distribution')
-    plt.xlabel(r'$log(M_h/M_\odot)$')
-    plt.ylabel(r'$dP(M_h|M_\ast)/dM_h$')
-    plt.show()  
-    #print('r=',delta_r)
-    #print('b=',delta_b)
-    ##第二次归一化，目的是让所有概率求和为1
-    fr=np.zeros(N,dtype=np.float)
-    fb=np.zeros(N,dtype=np.float)
-    ss=0
-    qq=0
-    Fr=np.zeros(N,dtype=np.float)
-    Fb=np.zeros(N,dtype=np.float)
-    for k in range(0,N):
-        ss=ss+pr[k]*(mr[1]-mr[0])
-        fr[k]=ss
-    for k in range(0,N):
-        qq=qq+pb[k]*(mb[1]-mb[0])
-        fb[k]=qq
-    Ar = np.max(fr)
-    Ab = np.max(fb)
-    ss=0
-    qq=0
-    for k in range(0,N):
-        ss=ss+pr[k]*(mr[1]-mr[0])/Ar
-        Fr[k]=ss
-    for k in range(0,N):
-        qq=qq+pb[k]*(mb[1]-mb[0])/Ab
-        Fb[k]=qq   
-    plt.figure()
-    plt.plot(mr,Fr,'r')
-    plt.show()
-    plt.plot(mb,Fb,'b')
-    plt.show()
-    vr = np.array([mr[k] for k in range(0,len(mr)) if Fr[k]>=0.16 and Fr[k]<=0.84] )
-    vb = np.array([mb[k] for k in range(0,len(mb)) if Fb[k]>=0.16 and Fb[k]<=0.84] )
-    ur = [vr[0],vr[-1]]
-    ub = [vb[0],vb[-1]]
-    print(ur)
-    print(ub)
-    ##直接把x^2规范化，求errorbar的大小
-    D_chi_r = delta_r-np.min(delta_r)
-    D_chi_b = delta_b-np.min(delta_b)
-    plt.plot(mr,D_chi_r,'r')
-    plt.grid()
-    plt.show()
-    plt.plot(mb,D_chi_b,'b')
-    plt.grid()
-    plt.show()
-    sigma_mr = np.array([mr[k] for k in range(0,len(mr)) if abs(D_chi_r[k]-1)<=0.15])
-    sigma_mb = np.array([mb[k] for k in range(0,len(mb)) if abs(D_chi_b[k]-1)<=0.1])
-    print('sigma_r=',sigma_mr)
-    print('sigma_b=',sigma_mb)
     return mr,mb,N,best_mr,best_mb
 fig_(T=True)
 '''

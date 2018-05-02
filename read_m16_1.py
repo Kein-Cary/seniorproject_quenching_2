@@ -2,7 +2,7 @@ import os.path
 import numpy as np
 import matplotlib.pyplot as plt
 """Read the Mandelbaum+2016 Weak Lensing data."""
-m16path = 'D:/mask/seniorproject_quenching-master/data/M16/'
+m16path = 'D:/Python1/pydocument/seniorproject_quenching2/practice/data/M16/'
 def read_m16_ds_1(use_red=True, mass_bin='10.0_10.4'):
     """Read DeltaSigma data from Mandelbaum+16.
     Parameters
@@ -43,7 +43,6 @@ def read_m16_ds_1(use_red=True, mass_bin='10.0_10.4'):
     rp, ds, ds_err = np.genfromtxt(fname, usecols=cols_dict[mass_bin],\
                                    unpack=True)
     return(rp, ds, ds_err)
-
 def read_m16_mass_1(use_red):
     if use_red:
         usecols = [0, 1, 3, 4]
@@ -63,7 +62,7 @@ def read_m16_mass_1(use_red):
     # mh is in Msun/h
     lgmh = np.log10(mh)
     # simply errors
-    emhlow = lgmh - np.log10(mhlow)
+    #emhlow = lgmh - np.log10(mhlow)
     emhupp = np.log10(mhupp) - lgmh
     # errlgmh = (emhlow + emhupp) * 0.5
     # (arbitrarily) take the upper errorbar
@@ -71,7 +70,6 @@ def read_m16_mass_1(use_red):
     # out = [lgms, lgmh, emhlow, emhupp]
     out = [lgms, lgmh, errlgmh]
     return(out)
-
 def test_read_m16_ds_1(mass_bin):
     """Test the M16 Reader."""
     ##加入数组，记录rp,ds,ds_error的变化和取值。

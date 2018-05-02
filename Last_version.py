@@ -5,7 +5,7 @@ import os.path
 import numpy as np
 import matplotlib.pyplot as plt
 """Read the Mandelbaum+2016 Weak Lensing data."""
-m16path = 'D:/mask/seniorproject_quenching-master/data/M16/'
+m16path = 'D:/Python1/pydocument/seniorproject_quenching2/practice/data/M16/'
 def read_m16_ds_2(use_red, mass_bin):
     """Read DeltaSigma data from Mandelbaum+16.
     Parameters
@@ -66,7 +66,7 @@ def read_m16_mass_2(use_red):
     # mh is in Msun/h
     lgmh = np.log10(mh)
     # simply errors
-    emhlow = lgmh - np.log10(mhlow)
+    #emhlow = lgmh - np.log10(mhlow)
     emhupp = np.log10(mhupp) - lgmh
     # errlgmh = (emhlow + emhupp) * 0.5
     # (arbitrarily) take the upper errorbar
@@ -190,6 +190,8 @@ def calcu_sigmaz(Rpc,m_,x,z):
     c_ = 6
     ##调试结果c=3.25~3.75之间比较合适
     c = c_
+    #c = (9/(1+z))*(m_/1.686)**(-0.13)
+    ##加入c_m关系并没有改善结果，整个red序列下移。
     #下面开始计算
     #对导入的数据做单位转化转为:太阳质量/h
     m1 = h*m_*10**x
@@ -521,10 +523,15 @@ def fig_mass(pp):
     Dchi_r = np.zeros((len(mr_be),len(m)),dtype=np.float)
     Dchi_b = np.zeros((len(mb_be),len(m)),dtype=np.float)
     #Pr_mh的第一行存red的质量，第二行存blue的质量,x_std也一样
+    ##给定下面两个数据，用于记录x^2最小值的变化情况（在这里针对单参数拟合，
+    ##可以不用记录，但是对于高位参数拟合，需要记录x^2的最小值情况，以便MCMC的自检测拟合）
+    chi_min_r = np.zeros(len(mr_be),dtype=np.float)
+    chi_min_b = np.zeros(len(mb_be),dtype=np.float)
     for k in range(0,len(mr_be)):
         rp,best_mr,delta_r,bestfmr = fit_datar_2(True,mr_be[k],z_red[k],k)
         Pr_mh_r[k] = best_mr
         b_m_r[k] = bestfmr
+        chi_min_r[k] = np.min(delta_r)
         ##下面把x^2转化为相应的概率分布，并让mh的划分区间服从这个分布
         mr = m
         rsa,dssa,ds_errsa = test_read_m16_ds_2(True,mass_bin=mr_be[k])
@@ -571,6 +578,7 @@ def fig_mass(pp):
         rp,best_mb,delta_b,bestfmb = fit_datab_2(False,mb_be[k],z_blue[k],k)
         Pr_mh_b[k] = best_mb
         b_m_b[k] = bestfmb
+        chi_min_b[k] = np.min(delta_b)
         ##下面把x^2转化为相应的概率分布，并让mh的划分区间服从这个分布
         mb = m
         rsa,dssa,ds_errsa = test_read_m16_ds_2(False,mass_bin=mb_be[k])
@@ -621,7 +629,7 @@ def fig_mass(pp):
     ###观察delta_x^2的变化情况
     plt.figure()
     for k in range(0,len(mr_be)+len(mb_be)+1):
-        plt.subplot(4,3,1+k)
+        plt.subplot((len(mr_be)+len(mb_be)+1)/3,3,1+k)
         if k<7:
             plt.plot(m,Dchi_r[k],'r')
             #plt.title(r'$\Delta\chi^2_{red}$')
@@ -633,10 +641,10 @@ def fig_mass(pp):
             plt.grid()
             plt.axis([b_m_b[k-7]-1,b_m_b[k-7]+0.5,0,1])
         else:
-            plt.plot(pr,Fr,'r')
-            plt.plot(pb,Fb,'b')
+            plt.plot(b_m_r,chi_min_r,'r')
+            plt.plot(b_m_b,chi_min_b,'b')
     plt.tight_layout()
-    plt.savefig('delta_x^2_r',dpi=600)
+    #plt.savefig('delta_x^2_r',dpi=600)
     plt.show()  
     plt.figure()
     #scatter函数参数设置
@@ -688,10 +696,11 @@ def fig_mass(pp):
         m_b2 = np.interp(1.0,Dchib_2,mb2)
         ##插值后比
         Dchib[k,:] = np.array([m_b1-b_m_b[k],m_b2-b_m_b[k]])
-    #print(Dchir)
-    #print(Dchib)
+    print(Dchir)
+    print(Dchib)
     plt.figure()
     ##data存储观测数据
+    ##########下面部分记录errorbar的画图与调整，fill_between的画图和调整
     data_r = np.array([12.17,12.14,12.50,12.89,13.25,13.63,14.05])
     data_r_err = np.array([[0.19,0.12,0.04,0.04,0.03,0.03,0.05],
                           [-0.24,-0.14,-0.05,-0.04,-0.03,-0.03,-0.05]])
@@ -729,5 +738,17 @@ def fig_mass(pp):
     #plt.axis([10,12.5,11,14.5])
     #plt.savefig('Standard_deviation_71.png',dpi=600)
     plt.show() 
+    print('Mh_r=',Pr_mh_r)
+    print('Mh_b=',Pr_mh_b)
+    ####下面对计算做假设检验
+    from scipy.stats import chi2
+    p_val_r = np.zeros(len(mr_be),dtype=np.float)
+    p_val_b = np.zeros(len(mb_be),dtype=np.float)    
+    for k in range(0,len(mr_be)):
+        p_val_r[k] = 1-chi2.cdf(chi_min_r[k],13)
+    for k in range(0,len(mb_be)):
+        p_val_b[k] = 1-chi2.cdf(chi_min_b[k],13)
+    print('Pvalue_r=',p_val_r)
+    print('Pvalue_b=',p_val_b) 
     return Pr_mh_r,Pr_mh_b
 fig_mass(pp=True)

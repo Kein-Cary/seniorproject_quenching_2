@@ -19,6 +19,7 @@ def profile_check(c):
     #plt.ylabel(r'$h^2M_\odot/kpc^3$')
     plt.xlabel(r'$Mpc/h$')
     plt.ylabel(r'$h^2M_\odot/Mpc^3$')
+    #plt.savefig(r'$rho-r$',dpi=600)
     return
 profile_check(c=True)
 '''
