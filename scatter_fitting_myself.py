@@ -119,6 +119,7 @@ def show_data(vv):
     #plt.savefig('Distribution_kdeplot',dpi=600)
     plt.show()
 ####观察量量变量之间的变化关系
+######这部分做图说明不同数据类型之间如何转化，相应的，对应数据的变量类型关键字怎么定义
     ###下面绘制主晕的几个主要相关两之间的联合分布阵列
     data_list = np.array([main_halo, mstar, gcolor, con])
     #print(data_list.T)
@@ -132,10 +133,8 @@ def show_data(vv):
                      diag_sharey=False, size=2.5, aspect=1)
     g.map_diag(sns.distplot)
     #g.map_diag(sns.kdeplot)
-    '''
-    g.map_offdiag(sns.regplot, x_estimator=np.std, x_bins=100, x_ci='ci', ci=95,
-                  scatter=True, fit_reg=True, logx=False, truncate=True)
-    '''
+    #g.map_offdiag(sns.regplot, x_estimator=np.std, x_bins=100, x_ci='ci', ci=95,
+    #              scatter=True, fit_reg=True, logx=False, truncate=True)
     g.map_offdiag(plt.scatter,s=0.5, color='gray')
     #g.map_offdiag(sns.residplot)
     #g.map_upper(sns.kdeplot)
@@ -170,6 +169,10 @@ def bins_dic(tt):
     con_c = use_data['b']
     con = np.array(con_c[ix])
 ###下面为质量函数
+    print(np.max(main_halo))
+    print(np.min(main_halo))
+    print(np.max(mstar))
+    print(np.min(mstar))    
 ####mh-function
     value_mh = plt.hist(main_halo,100)
     plt.show()
@@ -289,9 +292,6 @@ def dis_pro_fun(dd):
                ,normed=True,cmin=0,cmap='rainbow',vmin=1e-5,vmax=1e3,alpha=1, 
                norm=mpl.colors.LogNorm())
     plt.show()
-    #print(dN[0])
-    #print(dN[1])
-    #print(dN[2])
     ms_bin = np.array(dN[1])
     mh_bin = np.array(dN[0])
     p_m = np.array(dN[0])
@@ -307,13 +307,13 @@ def dis_pro_fun(dd):
     ####沿着列方向积分得到的是Mhred的边界概率
     print(np.sum(P_ms*((np.max(mstar)-np.min(mstar))/NN)))
     print(np.sum(P_Mh*((np.max(main_halo)-np.min(main_halo))/MM)))
-    '''
     ####下面作图比较，检测求解结果
     plt.plot(P_ms)
+    plt.yscale('log')
     plt.show()
     plt.hist(mstar,100,normed=True)
+    plt.yscale('log')
     plt.show()
-    '''
     ####下面求在观测恒星质量前提下，观测到相应暗晕质量的概率,P(Mh|m*)
     P_mr_Mh = np.zeros((NN,MM),dtype=np.float)
     for k in range(0,NN):
@@ -330,7 +330,7 @@ def dis_pro_fun(dd):
     plt.show()
     plt.plot(x_Mh,P_mr_Mh)
     plt.yscale('log')
-    plt.legend(x_ms)
+    #plt.legend(x_ms)
     plt.show()
     return
 #dis_pro_fun(dd=True) 
@@ -471,9 +471,9 @@ def fun_fit(cc):
     return
 #fun_fit(cc=True)
 def fun_control(c):
-    #show_data(vv=True)
+    show_data(vv=True)
     #bins_dic(tt=True)
     #dis_pro_fun(dd=True) 
-    fun_fit(cc=True)
+    #fun_fit(cc=True)
     return
 fun_control(c=True)

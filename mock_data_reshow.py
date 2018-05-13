@@ -4,12 +4,23 @@ import sys
 sys.path.insert(0,'D:/Python1/pydocument/seniorproject_quenching2/practice')
 ##导入自己编写的脚本，需要加入这两句，一句声明符号应用，然后声明需要引入文-
 ##件的路径具体到文件夹
-#import os.path
+import os.path
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 ####该局是为了调用对数数密度画图
+def compare_data(C):
+    data_path ='D:/Python1/pydocument/seniorproject_quenching2/practice/data/M16'
+    fname = os.path.join(data_path,'hmf.dat')
+    lnMh_arr, dndlnMh_arr = np.genfromtxt(fname, unpack=True)
+    plt.plot(lnMh_arr,dndlnMh_arr)
+    plt.xlabel("$lnMh_{arr}$")
+    plt.ylabel("$dndlnMh_{arr}$")
+    plt.yscale('log')
+    plt.show()
+    return
+#compare_data(C=True)
 def _read_recdict_from_hdf5(h5file):
     """Read a dict of record arrays from hdf5."""
     f = h5py.File(h5file, "r")
@@ -184,7 +195,6 @@ def plot_mock_hmf(mockfile, rcube=250.0):
     plt.xlabel(r'$logSFR$')
     #plt.savefig('Hist2d-SFR',dpi=600)
     plt.show()
-    raise
     ###二维统计分布图
     plt.hist2d(mstar,main_halo,bins=[100,100],
                range=[[np.min(mstar),np.max(mstar)],[np.min(main_halo),np.max(main_halo)]]
@@ -308,8 +318,12 @@ def plot_mock_hmf(mockfile, rcube=250.0):
 ##这句表示节点终段，用于调试程序（raise）
     out_array = [main_halo, mstar, gcolor, con, gcolor, color2, color1]
     return out_array
-if __name__ == "__main__":
+#if __name__ == "__main__":
+def run_control(T):
     #mockfile = '/Users/ying/Data/ihodmock/standard/iHODcatalog_bolshoi.h5'
     #改为本机绝对路径
+    #compare_data(C=True)
     mockfile = 'D:/Python1/pydocument/seniorproject_quenching2/practice/iHODcatalog_bolshoi.h5'
     plot_mock_hmf(mockfile)
+    return
+#run_control(T=True)

@@ -272,6 +272,7 @@ def devi_data(xx):
     con = np.array(con_c[ix])
 ####下面把暗晕分为red和blue两个序列
     g_r = 0.8*(mstar/10.5)**0.6
+    ##依照恒星质量带入计算，在g_r之上的为red,blue.
     Mh_red = np.zeros(len(main_halo),dtype=np.float)
     ms_red = np.zeros(len(main_halo),dtype=np.float)
     con_red = np.zeros(len(main_halo),dtype=np.float) 
@@ -445,7 +446,7 @@ def dist_data(tt):
     plt.legend(loc=2)
     #plt.show()
     bx4 = plt.subplot(gs1[1,1])
-    bx4.plot(msblue,gcolorblue,'y*',alpha=0.02, label='*-data_blue')
+    bx4.plot(msblue,gcolorblue,'c*',alpha=0.02, label='*-data_blue')
     plt.hlines(bin_meansb, bin_edgesb[:-1], bin_edgesb[1:], color='b', lw=2, label='statics_color_blue')
     plt.errorbar(bins_centerb,mean_blue,yerr=[std_blue,std_blue],fmt='bo-',linewidth=1,
                  elinewidth=0.5,ecolor='b',capsize=1,capthick=0.5,label='color_err_blue')
@@ -515,7 +516,7 @@ def dist_data(tt):
     plt.legend(loc=1)
     #plt.show()
     cx4 = plt.subplot(gs2[1,1])
-    cx4.plot(msblue,Mhblue,'y*',alpha=0.02, label='*-data_blue')
+    cx4.plot(msblue,Mhblue,'c*',alpha=0.02, label='*-data_blue')
     plt.hlines(m_bin_meansb, m_bin_edgesb[:-1], m_bin_edgesb[1:], color='b', lw=2, label='statics_Mh_blue')
     plt.errorbar(m_bins_centerb,m_mean_blue,yerr=[m_std_blue,m_std_blue],fmt='bo-',linewidth=1,
                  elinewidth=0.5,ecolor='b',capsize=1,capthick=0.5,label='Mh_err_blue')
@@ -565,8 +566,8 @@ def hist_proba(rr):
     #gcolorblue=co_out['g']
     #conblue=co_out['h']
 ###for red sequence
-    NN = 100
-    MM = 100
+    NN = 101
+    MM = 101
     rvalue = plt.hist2d(msred,Mhred,bins=[NN,MM],
                range=[[np.min(msred),np.max(msred)],[np.min(Mhred),np.max(Mhred)]]
                ,normed=True,cmin=0,cmap='rainbow',vmin=1e-5,vmax=1e3,alpha=1, 
@@ -595,11 +596,11 @@ def hist_proba(rr):
     ####下面求在观测恒星质量前提下，观测到相应暗晕质量的概率,P(Mh|m*)
     rP_mr_Mh = np.zeros((NN,MM),dtype=np.float)
     for k in range(0,NN):
-        rP_mr_Mh[:,k] = r_P[:,k]/P_ms_r[k]
+        rP_mr_Mh[k,:] = r_P[k,:]/P_ms_r[k]
     ####下面求在给定暗晕质量前提下，观测到相应恒星质量的概率,P(m*|Mh) 
     rP_Mh_mr = np.zeros((MM,NN),dtype=np.float)
     for k in range(0,MM):
-        rP_Mh_mr[k,:] = r_P[k,:]/P_Mh_r[k]
+        rP_Mh_mr[k,:] = r_P[:,k]/P_Mh_r[k]
     x_ms_r = np.array(np.linspace(np.min(msred),np.max(msred),MM))
     x_Mh_r = np.array(np.linspace(np.min(Mhred),np.max(Mhred),NN))
     #print(x_ms_r)
@@ -661,11 +662,11 @@ def hist_proba(rr):
     ####下面求在观测恒星质量前提下，观测到相应暗晕质量的概率,P(Mh|m*)
     bP_mr_Mh = np.zeros((NN,MM),dtype=np.float)
     for k in range(0,NN):
-        bP_mr_Mh[:,k] = b_P[:,k]/P_ms_b[k]
+        bP_mr_Mh[k,:] = b_P[k,:]/P_ms_b[k]
     ####下面求在给定暗晕质量前提下，观测到相应恒星质量的概率,P(m*|Mh) 
     bP_Mh_mr = np.zeros((MM,NN),dtype=np.float)
     for k in range(0,MM):
-        bP_Mh_mr[k,:] = b_P[k,:]/P_Mh_b[k]
+        bP_Mh_mr[k,:] = b_P[:,k]/P_Mh_b[k]
     x_ms_b = np.array(np.linspace(np.min(msblue),np.max(msblue),MM))
     x_Mh_b = np.array(np.linspace(np.min(Mhblue),np.max(Mhblue),NN))
     #print(x_ms_b)
@@ -794,8 +795,8 @@ def run_control(T):
     #static_data(uu=True)
     ###第三个函数时间比较久，做图显示边界分布
     #devi_data(xx=True)
-    dist_data(tt=True)
+    dist_data(tt=True)###对模拟数据分析拟合并和观测数据比较
     #hist_proba(rr=True)
     #fred_dist(L=True)
     return
-#run_control(T=True)
+run_control(T=True)
