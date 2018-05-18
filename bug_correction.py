@@ -387,10 +387,10 @@ def Theory_fun_assum(fa):
     for k in range(len(ms)):
         p_Mh_ms[:,k] = P_Joint_as[:,k]/pms[k] 
     plt.plot(_halo,np.log(10)*10**_halo*p_Mh_ms[:,1])
-    plt.yscale('log')
+    #plt.yscale('log')
     plt.show()
     plt.plot(ms_use,np.log(10)*10**ms_use*p_ms_Mh[500,:])
-    plt.yscale('log')
+    #plt.yscale('log')
     plt.show()
     ###注意因为pms和pmh包含0,上述两个条件概率存在Inf和nan
     p_Mh_ms[np.isinf(p_Mh_ms)]=0

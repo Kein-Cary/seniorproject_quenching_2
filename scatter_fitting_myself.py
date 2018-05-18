@@ -471,9 +471,9 @@ def fun_fit(cc):
     return
 #fun_fit(cc=True)
 def fun_control(c):
-    show_data(vv=True)
+    #show_data(vv=True)
     #bins_dic(tt=True)
     #dis_pro_fun(dd=True) 
-    #fun_fit(cc=True)
+    fun_fit(cc=True)
     return
 fun_control(c=True)

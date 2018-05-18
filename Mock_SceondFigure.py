@@ -525,13 +525,15 @@ def dist_data(tt):
     plt.tight_layout()
     #plt.savefig('Mh_analysis',dpi=600)
     plt.show()
-    
+    ####注意需要把恒星质量单位转化
+    h = 0.72
+    delta_bar = np.log10(h)
     plt.figure()
     #plt.hlines(m_bin_meansr, m_bin_edgesr[:-1], m_bin_edgesr[1:], color='r', lw=2, label='statics_Mh_red')
-    plt.errorbar(m_bins_centerr,m_mean_red,yerr=[m_std_red,m_std_red],fmt='r^-',linewidth=1,
+    plt.errorbar(m_bins_centerr-2*delta_bar,m_mean_red,yerr=[m_std_red,m_std_red],fmt='r^-',linewidth=1,
                  elinewidth=0.5,ecolor='r',capsize=1,capthick=0.5,label='Mh_err_red')
     #plt.hlines(m_bin_meansb, m_bin_edgesb[:-1], m_bin_edgesb[1:], color='b', lw=2, label='statics_Mh_blue')
-    plt.errorbar(m_bins_centerb,m_mean_blue,yerr=[m_std_blue,m_std_blue],fmt='b^-',linewidth=1,
+    plt.errorbar(m_bins_centerb-2*delta_bar,m_mean_blue,yerr=[m_std_blue,m_std_blue],fmt='b^-',linewidth=1,
                  elinewidth=0.5,ecolor='b',capsize=1,capthick=0.5,label='Mh_err_blue')
     ####M16数据对比
     data_r = np.array([12.17,12.14,12.50,12.89,13.25,13.63,14.05])
@@ -551,7 +553,9 @@ def dist_data(tt):
     plt.legend(loc=2)
     #plt.savefig('Mh_comparation',dpi=600)
     plt.show()
-    return
+    #print('mh_r=',m_mean_red)
+    #print('mh_b=',m_mean_blue)
+    return  
 #dist_data(tt=True)
 ###################
 ##下面的hist_proba函数尝试从二位的binned_statistic函数调用，得到联合分布

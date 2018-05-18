@@ -205,7 +205,7 @@ def plot_mock_hmf(mockfile, rcube=250.0):
     plt.ylabel(r'$logMh[M_\odot/h]$')
     #plt.savefig('Hist2d-1',dpi=600)
     plt.show()
-    
+    raise
     plt.hist2d(mstar,gcolor,bins=[100,100],
                range=[[np.min(mstar),np.max(mstar)],[np.min(gcolor),np.max(gcolor)]]
                ,normed=True,cmin=0,cmap='rainbow',vmin=1e-5,vmax=1e2,alpha=1, 
