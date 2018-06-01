@@ -165,7 +165,7 @@ def mass_be_(tt):
         ds_b[k,:] = dssa
         ds_err_b[k,:] = ds_errsa
     return ds_r,ds_err_r,ds_b,ds_err_b
-mass_be_(tt=True)
+#mass_be_(tt=True)
 ##Section 2：该部分尝试计算最佳拟合质量，并给出误差棒图像
 import sys
 #sys.path.insert(0,'D:/Python1/pydocument/seniorproject_quenching2/practice/_pycache_/session_1')
@@ -187,8 +187,8 @@ def input_mass_bin(v):
     fname = os.path.join(_mh_path,'z_eff.txt')
     z_ = np.loadtxt(fname,delimiter=',',dtype=np.float,unpack=True)  
     z = np.array(z_)
-    N = 501
-    m = np.linspace(10.5,15,N)
+    N = 401
+    m = np.linspace(10.5,14.5,N)
     #针对不同质量区间设置拟合质量范围
     #print(z)
     return m,N,z
@@ -779,9 +779,9 @@ def fig_mass(pp):
     p_val_r = np.zeros(len(mr_be),dtype=np.float)
     p_val_b = np.zeros(len(mb_be),dtype=np.float)    
     for k in range(0,len(mr_be)):
-        p_val_r[k] = 1-chi2.cdf(chi_min_r[k],13)
+        p_val_r[k] = 1-chi2.cdf(chi_min_r[k],14)
     for k in range(0,len(mb_be)):
-        p_val_b[k] = 1-chi2.cdf(chi_min_b[k],13)
+        p_val_b[k] = 1-chi2.cdf(chi_min_b[k],14)
     print('Pvalue_r=',p_val_r)
     print('Pvalue_b=',p_val_b)    
     return Pr_mh_r,Pr_mh_b

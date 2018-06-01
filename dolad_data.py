@@ -598,7 +598,7 @@ def fit_datab(y):
     print('co_dexb=',dexb) 
     print('corr_mb=',10**dexb)
     return rp,best_mb,dexb1,a,b,yy,dexb,a_b 
-#fit_datab(y=True)
+fit_datab(y=True)
 '''
 if __name__ == "__main__":
     dolad_data(m=True,hz=True)

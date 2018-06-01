@@ -15,6 +15,7 @@ import matplotlib.gridspec as gridspec
 import pandas as pa
 from scipy import interpolate as sinter
 from scipy.optimize import minimize
+import h5py
 ###mock_相关脚本调用，主要用于导入数据
 from Theory_calculation import Theory_fun3
 def func_fred(mh_q,miu_mh):
@@ -125,7 +126,7 @@ def func_fred(mh_q,miu_mh):
         va_err8 = np.interp(0.8415,F_m4,mh_err)-np.log10(blue_Mh_ms2[k])
         blue_Mh_err2[k,:] = np.array([va_err7,va_err8]) 
     return red_Mh_ms2,red_Mh_err2,blue_Mh_ms2,blue_Mh_err2,_halo,ms_use
-#func_fred(mh_q,miu_mh)
+
 def fit_data(t):
     t=t
     if t==1:
@@ -144,10 +145,10 @@ def fit_data(t):
         ms_b = np.array([10.24,10.56,10.85,11.10,11.28,11.47,11.68] )
         ####对M16的数据,还要注意把恒星质量从Msolar的单位转化为Msolar/h^-2
         ####C_m16的结果对应部分
-        h = 0.72
-        delta_value = np.log10(h)
-        ms_r = ms_r+2*delta_value 
-        ms_b = ms_b+2*delta_value
+        #h = 0.72
+        #delta_value = np.log10(h)
+        #ms_r = ms_r+2*delta_value 
+        #ms_b = ms_b+2*delta_value
     elif t==0:
         ####导入模拟的观测数据(数据点比较多情况)
         mh_r= np.array([11.84144843,11.84144843,11.89535823,11.95580005,12.02537811,\
@@ -191,14 +192,21 @@ def fit_data(t):
         mh_b_err = np.array([0.01,0.31022394,0.31428295,0.32420174,0.33966039,0.36085605,\
                  0.4146244,0.333523])
     return mh_r,ms_r,mh_r_err,mh_b,ms_b,mh_b_err
-#fit_data(t=1)
+
 ###################
+###做图显示参数不同取值的chi^2分布
 def fit_best(dd):
     mh_r,ms_r,mh_r_err,mh_b,ms_b,mh_b_err = fit_data(t=1)
     ##给定需要优化的参数范围
-    mh_q = np.linspace(11.0,15.5,11)
-    miu_mh = np.linspace(0,3.0,11)
+    mh_q = np.linspace(11.0,15.5,10)
+    miu_mh = np.linspace(0,3.0,10)
+    #####下面建立存储单元
     chi_v = np.zeros((len(mh_q),len(miu_mh)),dtype=np.float)
+    with h5py.File('chi2.h5','w') as f:
+         f['a'] = np.array(chi_v)
+    #with h5py.File('chi2.h5') as f:
+    #     for k in range(len(chi_v)):
+    #         f['a'][k] = chi_v[k]
     for k in range(len(mh_q)):
         for t in range(len(miu_mh)):
             red_Mh_ms2,red_Mh_err2,blue_Mh_ms2,blue_Mh_err2,_halo,ms_use = func_fred(mh_q[k],miu_mh[t])
@@ -215,25 +223,59 @@ def fit_best(dd):
             for m in range(len(mh_r)):  
                 chi1 = chi_1+((T_mh_r[m]-mh_r[m])/(mh_r_err[m]))**2
             for n in range(len(mh_b)):
-                chi2 = chi_2+((T_mh_b[n]-mh_b[n])/(mh_b_err[n]))**2
-            chi_v[k,t] = chi1+chi2  
+                chi2 = chi_2+((T_mh_b[n]-mh_b[n])/(mh_b_err[n]))**2  
+            chi_v[k,t] = chi1+chi2
+        with h5py.File('chi2.h5') as f:
+             for k in range(len(chi_v)):
+                 f['a'][k] = chi_v[k]
     return chi_v,mh_q,miu_mh  
-#fit_best(dd=True)
+
 def fig_fit_best(d):
     chi_v,mh_q,miu_mh = fit_best(dd=True)
     plt.pcolormesh(mh_q,miu_mh,chi_v.T,cmap='rainbow',vmin=1e-1,vmax=np.max(chi_v)+1,alpha=1,
             norm = mpl.colors.LogNorm())
-    plt.colorbar()
+    plt.colorbar(label=r'$\chi^{2}$')
     plt.xlabel(r'$logM_h [M_\odot h^{-1}]$')
     plt.ylabel(r'$\mu_{M_h}$')
-    #plt.savefig('Parameter_analysis_m16',dpi=600)
+    plt.savefig('Parameter_analysis_M16',dpi=600)
     #plt.savefig('Parameter_analysis_t0',dpi=600)
     #plt.savefig('Parameter_analysis_t2',dpi=600)
-    #plt.savefig('C_m16_Parameter_analysis_m16',dpi=600)
+    #plt.savefig('corrrect_m16_Parameter_analysis_m16',dpi=600)
     plt.show()
     return 
-fig_fit_best(d=True)
+
+####下面调用存储文件画图
+def document_fig(t):
+    mh_q = np.linspace(11.0,15.5,10)
+    miu_mh = np.linspace(0,3.0,10)
+    f = h5py.File('chi2.h5','r')
+    y = f['a']
+    y = np.array(y)
+    plt.pcolormesh(mh_q,miu_mh,y.T,cmap='rainbow',vmin=1e-1,vmax=np.max(y)+1,alpha=1,
+           norm = mpl.colors.LogNorm())
+    plt.colorbar(label=r'$\chi^{2}$')
+    plt.xlabel(r'$logM_h [M_\odot h^{-1}]$')
+    plt.ylabel(r'$\mu_{M_h}$')
+    plt.savefig('document_analysis_M16',dpi=600)
+    plt.show()
+####二维插值做图
+    mhq = np.linspace(11.0,15.5,100)
+    miumh = np.linspace(0,3.0,100)
+    x1 = mh_q
+    x2 = miu_mh
+    fun_compare = sinter.interpolate.interp2d(x1,x2,y)
+    y_compare = fun_compare(mhq,miumh)
+    plt.pcolormesh(mhq,miumh,y_compare.T,cmap='rainbow',vmin=1e-1,vmax=np.max(y_compare)+1,alpha=1,
+           norm = mpl.colors.LogNorm())
+    plt.colorbar(label=r'$\chi^{2}$')
+    plt.xlabel(r'$logM_h [M_\odot h^{-1}]$')
+    plt.ylabel(r'$\mu_{M_h}$')
+    plt.savefig('document_compare_analysis_M16',dpi=600)
+    plt.show()
+    return
+
 ######################
+##用最小值函数计算最佳拟合参数情况
 def youhua(x):
     #mh_q = 12.25
     #miu_mh = 0.425
@@ -257,14 +299,24 @@ def youhua(x):
         chi2 = chi_2+((T_mh_b[t]-mh_b[t])/(mh_b_err[t]))**2
     chi_v = chi1+chi2 
     return chi_v
-#youhua(x=True) 
+
 #youhua(mh_q=True,miu_mh=Truem)
 def youhua_fit(f):
     mh_q = np.array(np.linspace(11.0,15.5,10))
-    miu_mh = np.array(np.linspace(0,3.0,11))  
+    miu_mh = np.array(np.linspace(0,3.0,10))  
     pre1 = minimize(youhua,x0=np.array([mh_q[0],miu_mh[0]]), method='Powell',tol=1e-5)
     #pre1 = minimize(youhua,x0=np.array([mh_q[0],miu_mh[0]]),method='L-BFGS-B',tol=1e-5)
     ##下面两句表示可以根据调用函数的关键字返回自己需要的值
     print('pre1=',pre1)
     return pre1
-#youhua_fit(f=True)
+
+def run_control(run):
+    #func_fred(mh_q,miu_mh)##该函数用于计算恒星-暗晕质量数组，以便后面做插值
+    #fit_data(t=1)##该函数用于导入要对比的数据,t=1导入M16数据对比，否则导入模拟数据对比
+    #fit_best(dd=True)##该函数用于理论曲线与导入数据的对比，根据导入数据的恒星质量做插值,对比理论曲线和导入数据
+    #fig_fit_best(d=True)##作图显示参数的优化结果，得到的结果是二维的参数分布图像
+    document_fig(t=True)##调用fit_best的输出数据（文件）作图，并作插值，得到连续的整个参数空间的分布图象
+    #youhua(x=True)##对比fit_best函数写出对参数空间的优化函数（找最小值）
+    #youhua_fit(f=True)##设置参数空间，对上一函数不停调用，知道求得最佳参数
+    return
+run_control(run=True)

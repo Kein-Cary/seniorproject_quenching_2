@@ -95,6 +95,7 @@ def test_read_m16_ds_1(mass_bin):
     #print('rp=',rp)
     #print('ds=',dssa)
     #print('error=',ds_errsa)
+    #plt.savefig('Sigma_signal',dpi=600)
     #plt.show()
     return rsa,dssa,ds_errsa
     #-sa表示设置数组
@@ -108,9 +109,8 @@ def test_read_m16_mass_1():
     plt.ylabel(r"$M_h\;[M_\odot/h]$")
     plt.grid()
     #plt.show()
-'''
+
 if __name__ == "__main__":
     test_read_m16_ds_1(mass_bin='11.0_15.0')
     # test_read_m16_mass()
     pass
-'''

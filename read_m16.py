@@ -3,7 +3,7 @@ import os.path
 import numpy as np
 import matplotlib.pyplot as plt
 """Read the Mandelbaum+2016 Weak Lensing data."""
-m16path = 'D:/mask/seniorproject_quenching-master/data/M16/'
+m16path = 'D:/Python1/pydocument/seniorproject_quenching2/practice/data/M16/'
 def read_m16_ds(use_red=True, mass_bin='10.0_10.4'):
     """Read DeltaSigma data from Mandelbaum+16.
     Parameters
@@ -72,7 +72,7 @@ def read_m16_mass(use_red):
     # out = [lgms, lgmh, emhlow, emhupp]
     out = [lgms, lgmh, errlgmh]
     return(out)
-def test_read_m16_ds(mass_bin="11.0_15.0"):
+def test_read_m16_ds(mass_bin='11.0_15.0'):
     """Test the M16 Reader."""
     ##加入数组，记录rp,ds,ds_error的变化和取值。
     rp, ds, ds_err = read_m16_ds(use_red=True, mass_bin=mass_bin)

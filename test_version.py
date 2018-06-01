@@ -177,8 +177,8 @@ def input_mass_bin(v):
     fname = os.path.join(_mh_path,'z_eff.txt')
     z_ = np.loadtxt(fname,delimiter=',',dtype=np.float,unpack=True)  
     z = np.array(z_)
-    N = 501
-    m = np.linspace(10.5,15,N)
+    N = 401
+    m = np.linspace(10.5,14.5,N)
     #针对不同质量区间设置拟合质量范围
     #print(z)
     return m,N,z
@@ -512,7 +512,7 @@ def fig_mass(pp):
     ##此句表示四个蓝色星系的版本，对应下面的z_blue用循环赋值部分
     #作图取点
     mbinr = [10.28,10.58,10.86,11.10,11.29,11.48,11.68]
-    mbinb = [10.24,10.58,10.86,11.10,11.28,11.47,11.68]
+    mbinb = [10.24,10.56,10.85,11.10,11.28,11.47,11.68]
     ##同样的，下面这句表示四个蓝色星系质量区间的版本
     #mbinb = [10.24,10.56,10.85,11.12]
     m,N,z = input_mass_bin(v=True)
@@ -743,25 +743,27 @@ def fig_mass(pp):
                                 elinewidth=0.5,ecolor='r',capsize=1,capthick=0.5,label='red')
     line2,caps2,bars2=plt.errorbar(m_binr,data_r,yerr=abs(data_r_err)[::-1],fmt="ro--",linewidth=1,
                                 elinewidth=0.5,ecolor='r',capsize=1,capthick=0.5,label='red(M16)')
-    line3,caps3,bars3=plt.errorbar(mbinb,Pr_mh_b,yerr=abs(Dchib)[::-1],fmt="b^-",linewidth=1,
+    line3,caps3,bars3=plt.errorbar(mbinb[0:-2],Pr_mh_b[0:-2],yerr=abs(Dchib[:,0:-2])[::-1],fmt="b^-",linewidth=1,
                                 elinewidth=0.5,ecolor='b',capsize=1,capthick=0.5,label='blue')
     line4,caps4,bars3=plt.errorbar(m_binb,data_b,yerr=abs(data_b_err)[::-1],fmt="bo--",linewidth=1,
                                 elinewidth=0.5,ecolor='b',capsize=1,capthick=0.5,label='blue(M16)')
-    plt.fill_between(mbinr,Pr_mh_r[:]+Dchir[0,:],Pr_mh_r[:]+Dchir[1,:],
-                         facecolor=color_list[0],alpha=.30)
-    plt.fill_between(mbinb,Pr_mh_b[:]+Dchib[0,:],Pr_mh_b[:]+Dchib[1,:],
-                         facecolor=color_list[1],alpha=.30)
-    plt.fill_between(m_binr,data_r[:]+data_r_err[0],data_r[:]+data_r_err[1],
-                         facecolor=color_list[2],alpha=.20)
-    plt.fill_between(m_binb,data_b[:]+data_b_err[0],data_b[:]+data_b_err[1],
-                         facecolor=color_list[2],alpha=.20)
+    #plt.fill_between(mbinr,Pr_mh_r[:]+Dchir[0,:],Pr_mh_r[:]+Dchir[1,:],
+    #                     facecolor=color_list[0],alpha=.30)
+    #plt.fill_between(mbinb,Pr_mh_b[:]+Dchib[0,:],Pr_mh_b[:]+Dchib[1,:],
+    #                     facecolor=color_list[1],alpha=.30)
+    #plt.fill_between(m_binr,data_r[:]+data_r_err[0],data_r[:]+data_r_err[1],
+    #                     facecolor=color_list[2],alpha=.20)
+    #plt.fill_between(m_binb,data_b[:]+data_b_err[0],data_b[:]+data_b_err[1],
+    #                     facecolor=color_list[2],alpha=.20)
     plt.xlabel(r'$log[M_\ast/M_\odot]$')
     plt.ylabel(r'$log{\langle M_{200} \rangle/[M_\odot h^{-1}]}$')    
     plt.legend(loc=2)
     plt.title(r'$Standard Deviation-1\sigma_{\chi^2}$')
     #plt.axis([10,12.5,11,14.5])
-    #plt.savefig('Standard_deviation_new_blue.png',dpi=600)
+    plt.savefig('Prediction_correct.png',dpi=600)
     plt.show()
+    print('errorbar_r=',Dchir)
+    print('errorbar_b=',Dchib)
     print('Mh_r=',Pr_mh_r)
     print('Mh_b=',Pr_mh_b)
     ####下面对计算做假设检验
@@ -769,9 +771,9 @@ def fig_mass(pp):
     p_val_r = np.zeros(len(mr_be),dtype=np.float)
     p_val_b = np.zeros(len(mb_be),dtype=np.float)    
     for k in range(0,len(mr_be)):
-        p_val_r[k] = 1-chi2.cdf(chi_min_r[k],13)
+        p_val_r[k] = 1-chi2.cdf(chi_min_r[k],14)
     for k in range(0,len(mb_be)):
-        p_val_b[k] = 1-chi2.cdf(chi_min_b[k],13)
+        p_val_b[k] = 1-chi2.cdf(chi_min_b[k],14)
     print('Pvalue_r=',p_val_r)
     print('Pvalue_b=',p_val_b)    
     return Pr_mh_r,Pr_mh_b

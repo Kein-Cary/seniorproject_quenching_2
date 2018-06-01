@@ -450,6 +450,7 @@ def fig_mass(pp):
     #print('phy_mb=',Pr_mh[:,1])
     #print('errbar_r=',err_bar_r)
     #print('errbar_b=',err_bar_b)
+    #####注意errorbar作图命令
     plt.figure()
     color_list = ['r','b','g']
     line1,caps1,bars1=plt.errorbar(mbin,Pr_mh[:,0],yerr=[err_bar_r[:,0],err_bar_r[:,1]],fmt="ks-",linewidth=1,

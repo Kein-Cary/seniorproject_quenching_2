@@ -18,6 +18,9 @@ def compare_data(C):
     plt.xlabel("$lnMh_{arr}$")
     plt.ylabel("$dndlnMh_{arr}$")
     plt.yscale('log')
+    plt.grid()
+    plt.title('Halo_mass_fun')
+    #plt.savefig('fun_Mh',dpi=600)
     plt.show()
     return
 #compare_data(C=True)

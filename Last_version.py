@@ -745,9 +745,9 @@ def fig_mass(pp):
     p_val_r = np.zeros(len(mr_be),dtype=np.float)
     p_val_b = np.zeros(len(mb_be),dtype=np.float)    
     for k in range(0,len(mr_be)):
-        p_val_r[k] = 1-chi2.cdf(chi_min_r[k],13)
+        p_val_r[k] = 1-chi2.cdf(chi_min_r[k],14)
     for k in range(0,len(mb_be)):
-        p_val_b[k] = 1-chi2.cdf(chi_min_b[k],13)
+        p_val_b[k] = 1-chi2.cdf(chi_min_b[k],14)
     print('Pvalue_r=',p_val_r)
     print('Pvalue_b=',p_val_b) 
     return Pr_mh_r,Pr_mh_b
