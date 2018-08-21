@@ -237,7 +237,7 @@ def fig_fit_best(d):
     plt.colorbar(label=r'$\chi^{2}$')
     plt.xlabel(r'$logM_h [M_\odot h^{-1}]$')
     plt.ylabel(r'$\mu_{M_h}$')
-    plt.savefig('Parameter_analysis_M16',dpi=600)
+    #plt.savefig('Parameter_analysis_M16',dpi=600)
     #plt.savefig('Parameter_analysis_t0',dpi=600)
     #plt.savefig('Parameter_analysis_t2',dpi=600)
     #plt.savefig('corrrect_m16_Parameter_analysis_m16',dpi=600)
@@ -256,7 +256,7 @@ def document_fig(t):
     plt.colorbar(label=r'$\chi^{2}$')
     plt.xlabel(r'$logM_h [M_\odot h^{-1}]$')
     plt.ylabel(r'$\mu_{M_h}$')
-    plt.savefig('document_analysis_M16',dpi=600)
+    #plt.savefig('document_analysis_M16',dpi=600)
     plt.show()
 ####二维插值做图
     mhq = np.linspace(11.0,15.5,100)
@@ -264,13 +264,14 @@ def document_fig(t):
     x1 = mh_q
     x2 = miu_mh
     fun_compare = sinter.interpolate.interp2d(x1,x2,y)
+    ##二维插值函数插值
     y_compare = fun_compare(mhq,miumh)
     plt.pcolormesh(mhq,miumh,y_compare.T,cmap='rainbow',vmin=1e-1,vmax=np.max(y_compare)+1,alpha=1,
            norm = mpl.colors.LogNorm())
     plt.colorbar(label=r'$\chi^{2}$')
     plt.xlabel(r'$logM_h [M_\odot h^{-1}]$')
     plt.ylabel(r'$\mu_{M_h}$')
-    plt.savefig('document_compare_analysis_M16',dpi=600)
+    #plt.savefig('document_compare_analysis_M16',dpi=600)
     plt.show()
     return
 
@@ -311,7 +312,7 @@ def youhua_fit(f):
     return pre1
 
 def run_control(run):
-    #func_fred(mh_q,miu_mh)##该函数用于计算恒星-暗晕质量数组，以便后面做插值
+    #func_fred(mh_q,miu_m h)##该函数用于计算恒星-暗晕质量数组，以便后面做插值
     #fit_data(t=1)##该函数用于导入要对比的数据,t=1导入M16数据对比，否则导入模拟数据对比
     #fit_best(dd=True)##该函数用于理论曲线与导入数据的对比，根据导入数据的恒星质量做插值,对比理论曲线和导入数据
     #fig_fit_best(d=True)##作图显示参数的优化结果，得到的结果是二维的参数分布图像

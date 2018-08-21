@@ -168,6 +168,13 @@ def figure_1(a):
     plt.legend(loc=4)
     #plt.savefig('Mh-Ms',dpi=600)
     plt.show()
+    #plt.plot(np.log10(mhalo),np.log10(Theory_mstar)/np.log10(mhalo),'r')
+    #plt.show()
+    #plt.plot(np.log10(mhalo),np.log10(Theory_mstar/mhalo),'b')
+    #plt.xlabel(r'$M_h [M_\odot h^{-1}]$')
+    #plt.ylabel(r'$M_\ast /M_h [h-1]$')
+    #plt.show()
+    plt.plot(np.log10(mhalo),np.log10(Theory_mstar),'r')
     plt.fill_between(np.log10(mhalo),np.log10(Theory_mstar)-sigma_ms,np.log10(Theory_mstar)+sigma_ms,facecolor='g',alpha=0.2)
     plt.xlabel(r'$lgM_h [M_\odot h^{-1}]$')
     plt.ylabel(r'$lgM_\ast [M_\odot h^{-2}]$')
@@ -919,7 +926,7 @@ def comparation_M16(g):
         plt.xlabel(r'$lgM_\ast [M_\odot ]$')
         plt.ylabel(r'$lgM_h [M_\odot h^{-1}]$')
         plt.legend(loc=2)
-        plt.savefig('Correct_Theory_compare_data',dpi=600)
+        #plt.savefig('Correct_Theory_compare_data',dpi=600)
         plt.show()
     else:
         line2,caps2,bars2=plt.errorbar(ms_r-2*delta_value,mh_r,yerr=[abs(mh_r_err),abs(mh_r_err)],fmt="ro--",linewidth=1,
@@ -942,7 +949,7 @@ def comparation_M16(g):
         plt.ylabel(r'$lgM_h [M_\odot h^{-1}]$')
         plt.legend(loc=2)    
         #plt.savefig('Correct_parameter_data',dpi=600)
-        plt.savefig('Mock_parameter_data',dpi=600)
+        #plt.savefig('Mock_parameter_data',dpi=600)
         plt.show()
     return
 #########################
@@ -958,6 +965,6 @@ def control_file(R):
     #fig_R_Mh_Ms(d=True)####作图显示上一步结果
     #func_fred(f=True)###求解红蓝星系的质量函数关系
     #fig_func_fred(g=True)###作图显示上一步结果
-    #comparation_M16(g=2)###输入数据并对比,g=1,表示M16的数据对比,g=0,2表示模拟数据的对比
+    comparation_M16(g=2)###输入数据并对比,g=1,表示M16的数据对比,g=0,2表示模拟数据的对比
     return
-#control_file(R=True)
+control_file(R=True)

@@ -760,7 +760,7 @@ def fig_mass(pp):
     plt.legend(loc=2)
     plt.title(r'$Standard Deviation-1\sigma_{\chi^2}$')
     #plt.axis([10,12.5,11,14.5])
-    plt.savefig('Prediction_correct.png',dpi=600)
+    #plt.savefig('Prediction_correct.png',dpi=600)
     plt.show()
     print('errorbar_r=',Dchir)
     print('errorbar_b=',Dchib)

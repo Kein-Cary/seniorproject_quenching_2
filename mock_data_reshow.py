@@ -208,7 +208,7 @@ def plot_mock_hmf(mockfile, rcube=250.0):
     plt.ylabel(r'$logMh[M_\odot/h]$')
     #plt.savefig('Hist2d-1',dpi=600)
     plt.show()
-    raise
+#    raise
     plt.hist2d(mstar,gcolor,bins=[100,100],
                range=[[np.min(mstar),np.max(mstar)],[np.min(gcolor),np.max(gcolor)]]
                ,normed=True,cmin=0,cmap='rainbow',vmin=1e-5,vmax=1e2,alpha=1, 
@@ -231,7 +231,7 @@ def plot_mock_hmf(mockfile, rcube=250.0):
     plt.ylabel(r'$g-r$')
     #plt.savefig('Hist2d-3',dpi=600)
     plt.show()  
-    
+    raise
     ###调用拟合函数，拟和分布曲线
     import handy
     ##观察 mstar,mh-con 之间的关系
@@ -317,8 +317,6 @@ def plot_mock_hmf(mockfile, rcube=250.0):
                 vmax=np.max(color2),alpha=0.2)
     #plt.savefig('3D-distribution-color',dpi=600)
     '''
-#   raise
-##这句表示节点终段，用于调试程序（raise）
     out_array = [main_halo, mstar, gcolor, con, gcolor, color2, color1]
     return out_array
 #if __name__ == "__main__":
